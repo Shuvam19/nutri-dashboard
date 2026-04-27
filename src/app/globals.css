@@ -24,45 +24,79 @@
 
 @theme inline {
   /* Base */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
+  --color-background: #f9f9ff;
+  --color-foreground: #151c27;
+  --color-muted: #e7eefe;
+  --color-muted-foreground: #3c4a42;
+  --color-border: #bbcabf;
 
-  /* Primary — Green (health/nutrition) */
-  --color-primary-50:  #f0fdf4;
-  --color-primary-100: #dcfce7;
-  --color-primary-200: #bbf7d0;
-  --color-primary-300: #86efac;
-  --color-primary-400: #4ade80;
-  --color-primary-500: #22c55e;
-  --color-primary-600: #16a34a;
-  --color-primary-700: #15803d;
-  --color-primary-800: #166534;
-  --color-primary-900: #14532d;
-
-  /* Accent — Amber */
-  --color-accent-50:  #fffbeb;
-  --color-accent-100: #fef3c7;
-  --color-accent-400: #fbbf24;
-  --color-accent-500: #f59e0b;
-  --color-accent-600: #d97706;
-
-  /* Danger — Red */
-  --color-danger-50:  #fef2f2;
-  --color-danger-500: #ef4444;
-  --color-danger-600: #dc2626;
+  /* Stitch Design System Colors */
+  --color-surface-variant: #dce2f3;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #e29100;
+  --color-primary-container: #10b981;
+  --color-outline: #6c7a71;
+  --color-on-error: #ffffff;
+  --color-inverse-surface: #2a313d;
+  --color-surface-dim: #d3daea;
+  --color-on-surface: #151c27;
+  --color-on-background: #151c27;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-highest: #dce2f3;
+  --color-error-container: #ffdad6;
+  --color-inverse-primary: #4edea3;
+  --color-on-surface-variant: #3c4a42;
+  --color-tertiary-fixed-dim: #ffb95f;
+  --color-inverse-on-surface: #ebf1ff;
+  --color-surface-container: #e7eefe;
+  --color-tertiary-fixed: #ffddb8;
+  --color-surface: #f9f9ff;
+  --color-tertiary: #855300;
+  --color-on-primary: #ffffff;
+  --color-primary: #006c49;
+  --color-secondary-fixed-dim: #adc6ff;
+  --color-on-secondary-fixed-variant: #004395;
+  --color-on-secondary: #ffffff;
+  --color-on-tertiary-container: #523200;
+  --color-secondary-container: #2170e4;
+  --color-on-tertiary-fixed-variant: #653e00;
+  --color-primary-fixed: #6ffbbe;
+  --color-on-secondary-fixed: #001a42;
+  --color-on-primary-container: #00422b;
+  --color-surface-bright: #f9f9ff;
+  --color-error: #ba1a1a;
+  --color-secondary: #0058be;
+  --color-outline-variant: #bbcabf;
+  --color-surface-container-high: #e2e8f8;
+  --color-primary-fixed-dim: #4edea3;
+  --color-on-tertiary-fixed: #2a1700;
+  --color-surface-tint: #006c49;
+  --color-on-error-container: #93000a;
+  --color-surface-container-low: #f0f3ff;
+  --color-secondary-fixed: #d8e2ff;
+  --color-on-primary-fixed-variant: #005236;
+  --color-on-secondary-container: #fefcff;
 
   /* Fonts */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "Geist Mono", "Fira Code", monospace;
+  --font-manrope: "Manrope", var(--font-sans);
+  
+  --font-body-sm: var(--font-manrope);
+  --font-label-caps: var(--font-manrope);
+  --font-body-md: var(--font-manrope);
+  --font-h2: var(--font-manrope);
+  --font-h3: var(--font-manrope);
+  --font-body-lg: var(--font-manrope);
+  --font-h1: var(--font-manrope);
+  --font-data-tabular: var(--font-manrope);
 
   /* Radius */
-  --radius-sm: 0.375rem;
+  --radius-sm: 0.25rem;
+  --radius-DEFAULT: 0.5rem;
   --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
   --radius-full: 9999px;
 
   /* Shadows */
@@ -70,6 +104,17 @@
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+  /* Spacing */
+  --spacing-base: 8px;
+  --spacing-gutter: 24px;
+  --spacing-sm: 12px;
+  --spacing-md: 24px;
+  --spacing-lg: 40px;
+  --spacing-xl: 64px;
+  --spacing-margin: 32px;
+  --spacing-xs: 4px;
+  --spacing-container-max: 1440px;
 }
 
 /* ============================================================

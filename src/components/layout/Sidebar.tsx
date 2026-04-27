@@ -39,9 +39,14 @@ const navigation: NavItem[] = [
     ],
   },
   {
+    name: "Appointments",
+    href: "/calendar",
+    icon: CalendarIcon,
+  },
+  {
     name: "Diet Plans",
     href: "/diet-plans",
-    icon: CalendarIcon,
+    icon: BookOpenIcon,
     children: [
       { name: "Plan Builder", href: "/diet-plans/new" },
       { name: "Templates", href: "/diet-plans" },
