@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { getClients } from "@/app/actions/client";
 
-export default function ClientsPage() {
+export default async function ClientsPage() {
+  const clients = await getClients();
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-base">
@@ -83,145 +85,56 @@ export default function ClientsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-dim bg-surface-container-lowest">
-              <tr className="hover:bg-surface-container transition-colors group">
-                <td className="px-md py-sm whitespace-nowrap">
-                  <div className="flex items-center gap-sm">
-                    <img alt="Emma Watson" className="w-10 h-10 rounded-full object-cover border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIraHBVFmuOQlGdhsDCsVbgJCm_-JpMrH7jMZtk1Y39MHMbuagV2MK9Z6DfKs9_P-ajNrFq6gEBZFRTHyMnPq0YdQ85_zVKrfBybbuLH7JSpbzmu_Xumr2EOWodtKObasMk-c4eOwXGkNmlYSqywiFcw1kQjaD0GnjCDHB3JYKmYUpP3NU6IAcm4Bf0j5chNPpJs_HwzS48xI9aBKwhkNlX3J_hxd_X04-JYZTP_v2ubBqv3B0vzI5jfIKUz1-Vk6RpnPjvhAT86k" />
-                    <div>
-                      <div className="font-data-tabular text-data-tabular text-on-surface font-semibold">Emma Watson</div>
-                      <div className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">emma.w@example.com</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap font-data-tabular text-data-tabular text-on-surface-variant">Dr. Sarah Jenkins</td>
-                <td className="px-md py-sm whitespace-nowrap">
-                  <div className="font-data-tabular text-data-tabular text-on-surface">Oct 12, 2023</div>
-                  <div className="font-body-sm text-body-sm text-outline mt-0.5 text-[12px]">2 days ago</div>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap">
-                  <span className="inline-flex items-center px-2 py-1 rounded-md bg-secondary-fixed text-on-secondary-fixed-variant font-label-caps text-label-caps border border-secondary-fixed-dim">Vegan</span>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap text-right">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-caps text-label-caps gap-1.5 border border-primary-fixed-dim">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> Active
-                  </span>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap text-right">
-                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Link href="/clients/1" className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="View Patient File">
-                      <span className="material-symbols-outlined text-[20px]">visibility</span>
-                    </Link>
-                    <button className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="Edit Demographics">
-                      <span className="material-symbols-outlined text-[20px]">edit</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              
-              <tr className="hover:bg-surface-container transition-colors group">
-                <td className="px-md py-sm whitespace-nowrap">
-                  <div className="flex items-center gap-sm">
-                    <img alt="Michael Chang" className="w-10 h-10 rounded-full object-cover border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBybtU14VjlDo9tOGvW7MyZVZsQlv2Jy2y6ts6jhuuG3BjpIkfGuqgAJN55tXcXDnD3KOARzD4hIJDLYU07jibIrDHJ_-bjabKFbDhTABx-iFszYOt_2lbYE6xclf3-mNSK7K0mblcZOdpRHG80Ct3h7__6AwGX8AGcsszKHsbJgH_vX2lIVRvY43SrTpvcKx6UWpTpJHXo0uvex8_EkihnrF2NGouuCwU5b_aUERTsRm1LMOxBsUk_rc6QTbpQBSPHx28iCd0khWE" />
-                    <div>
-                      <div className="font-data-tabular text-data-tabular text-on-surface font-semibold">Michael Chang</div>
-                      <div className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">m.chang88@mail.com</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap font-data-tabular text-data-tabular text-on-surface-variant">Dr. Smith</td>
-                <td className="px-md py-sm whitespace-nowrap">
-                  <div className="font-data-tabular text-data-tabular text-on-surface">Sep 28, 2023</div>
-                  <div className="font-body-sm text-body-sm text-outline mt-0.5 text-[12px]">2 weeks ago</div>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap">
-                  <span className="inline-flex items-center px-2 py-1 rounded-md bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-caps text-label-caps border border-tertiary-fixed-dim">Low FODMAP</span>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap text-right">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-variant text-on-surface-variant font-label-caps text-label-caps gap-1.5 border border-outline-variant">
-                    <span className="w-1.5 h-1.5 rounded-full bg-outline"></span> Maintenance
-                  </span>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap text-right">
-                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Link href="/clients/2" className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="View Patient File">
-                      <span className="material-symbols-outlined text-[20px]">visibility</span>
-                    </Link>
-                    <button className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="Edit Demographics">
-                      <span className="material-symbols-outlined text-[20px]">edit</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              
-              <tr className="hover:bg-surface-container transition-colors group">
-                <td className="px-md py-sm whitespace-nowrap">
-                  <div className="flex items-center gap-sm">
-                    <img alt="Sarah O'Connor" className="w-10 h-10 rounded-full object-cover border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvjjIyiG5Lxi3EnO_HJIV6s4QCj2vcyLfzAnLIXYNMkW5O_kNY1VSgN71PzZkAja4aooudU2ROyy1uRjLLGgcbTDibPv0RhRBtOyQysJkDWARsjitT5aXaHA9WJDqaJC_gI__H9vK2tdFf_6T8D2umA-ENWJeHJsX-L-GQyu5Dav68Smivz2yEZKCG_Wonwrb4TWHZTksZVYurs-CZEA_EUOsz5dUB3onOm7tTE51yvw8MzrSKXMO4NSju6WsjxRBqAUUeOJmnclw" />
-                    <div>
-                      <div className="font-data-tabular text-data-tabular text-on-surface font-semibold">Sarah O'Connor</div>
-                      <div className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">sarah.oc@company.net</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap font-data-tabular text-data-tabular text-on-surface-variant">Mark Thompson (RD)</td>
-                <td className="px-md py-sm whitespace-nowrap">
-                  <div className="font-data-tabular text-data-tabular text-on-surface">Aug 05, 2023</div>
-                  <div className="font-body-sm text-body-sm text-outline mt-0.5 text-[12px]">2 months ago</div>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap">
-                  <span className="inline-flex items-center px-2 py-1 rounded-md bg-surface-variant text-on-surface-variant font-label-caps text-label-caps border border-outline-variant">None</span>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap text-right">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-error-container text-on-error-container font-label-caps text-label-caps gap-1.5 border border-error-container">
-                    <span className="w-1.5 h-1.5 rounded-full bg-error"></span> Inactive
-                  </span>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap text-right">
-                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Link href="/clients/3" className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="View Patient File">
-                      <span className="material-symbols-outlined text-[20px]">visibility</span>
-                    </Link>
-                    <button className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="Edit Demographics">
-                      <span className="material-symbols-outlined text-[20px]">edit</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              
-              <tr className="hover:bg-surface-container transition-colors group">
-                <td className="px-md py-sm whitespace-nowrap">
-                  <div className="flex items-center gap-sm">
-                    <img alt="David Kim" className="w-10 h-10 rounded-full object-cover border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8olfnr-8PH52NC4qZp4IS1UjSPSUyTb3cv0L4ZeyH0iOizWtnjwQs-oimlfjCphNdmS0Vn6q-wq_1gixMTZqsC4MNT9QnGYkg0HLekpJqZNMbgNT5EohoSOy4T7rpk3DvA3omdarkB8kv1gCmvOnKKFBdRKJl7BkGFUkYvipe3LM_ECpVl594MgFpmZaZaZSfwb-5GEdWOsnDHtFQakzdwAVqs88tygy_21uu2nLBswxuokkDVEwMmpUhiVjEw_0SSgYoOPFWchs" />
-                    <div>
-                      <div className="font-data-tabular text-data-tabular text-on-surface font-semibold">David Kim</div>
-                      <div className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">dkim_athlete@sports.com</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap font-data-tabular text-data-tabular text-on-surface-variant">Dr. Smith</td>
-                <td className="px-md py-sm whitespace-nowrap">
-                  <div className="font-data-tabular text-data-tabular text-on-surface">Oct 14, 2023</div>
-                  <div className="font-body-sm text-body-sm text-outline mt-0.5 text-[12px]">Today</div>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap">
-                  <span className="inline-flex items-center px-2 py-1 rounded-md bg-secondary-fixed text-on-secondary-fixed-variant font-label-caps text-label-caps border border-secondary-fixed-dim">Ketogenic</span>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap text-right">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-caps text-label-caps gap-1.5 border border-primary-fixed-dim">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> Active
-                  </span>
-                </td>
-                <td className="px-md py-sm whitespace-nowrap text-right">
-                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Link href="/clients/4" className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="View Patient File">
-                      <span className="material-symbols-outlined text-[20px]">visibility</span>
-                    </Link>
-                    <button className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="Edit Demographics">
-                      <span className="material-symbols-outlined text-[20px]">edit</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              {clients.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-md py-xl text-center text-on-surface-variant font-body-md">
+                    No clients found. Add a new client to get started.
+                  </td>
+                </tr>
+              ) : (
+                clients.map((client) => (
+                  <tr key={client.id} className="hover:bg-surface-container transition-colors group">
+                    <td className="px-md py-sm whitespace-nowrap">
+                      <div className="flex items-center gap-sm">
+                        <div className="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center font-bold text-on-surface-variant">
+                          {client.full_name.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="font-data-tabular text-data-tabular text-on-surface font-semibold">{client.full_name}</div>
+                          <div className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">{client.email || 'No email provided'}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-md py-sm whitespace-nowrap font-data-tabular text-data-tabular text-on-surface-variant">
+                      {client.profiles?.full_name || 'Unassigned'}
+                    </td>
+                    <td className="px-md py-sm whitespace-nowrap">
+                      <div className="font-data-tabular text-data-tabular text-on-surface">{new Date(client.created_at).toLocaleDateString()}</div>
+                      <div className="font-body-sm text-body-sm text-outline mt-0.5 text-[12px]">Joined</div>
+                    </td>
+                    <td className="px-md py-sm whitespace-nowrap">
+                      <span className="inline-flex items-center px-2 py-1 rounded-md bg-secondary-fixed text-on-secondary-fixed-variant font-label-caps text-label-caps border border-secondary-fixed-dim capitalize">
+                        {client.dietary_preference.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-md py-sm whitespace-nowrap text-right">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-caps text-label-caps gap-1.5 border border-primary-fixed-dim capitalize">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> {client.status}
+                      </span>
+                    </td>
+                    <td className="px-md py-sm whitespace-nowrap text-right">
+                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Link href={`/clients/${client.id}`} className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="View Patient File">
+                          <span className="material-symbols-outlined text-[20px]">visibility</span>
+                        </Link>
+                        <button className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="Edit Demographics">
+                          <span className="material-symbols-outlined text-[20px]">edit</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

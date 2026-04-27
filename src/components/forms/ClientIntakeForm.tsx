@@ -1,20 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useActionState } from "react";
 import Link from "next/link";
+import { createClientAction } from "@/app/actions/client";
 
 export function ClientIntakeForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Stubbed server action simulation
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    // Simulate backend delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSubmitting(false);
-    alert("Form submitted! (Backend connection pending)");
-  };
+  const [state, formAction, isPending] = useActionState(createClientAction, null);
 
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -41,7 +32,12 @@ export function ClientIntakeForm() {
         </div>
       </header>
       
-      <form className="space-y-lg" onSubmit={handleSubmit}>
+      <form className="space-y-lg" action={formAction}>
+        {state?.success === false && (
+          <div className="bg-error-container text-on-error-container p-md rounded-lg mb-4 text-sm">
+            {state.message}
+          </div>
+        )}
         {/* Section 1: Personal Info */}
         <section className="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant/30 overflow-hidden">
           <div className="px-md py-md border-b border-surface-variant bg-surface-container-low/50 flex items-center gap-sm">
@@ -66,6 +62,7 @@ export function ClientIntakeForm() {
                 className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all placeholder:text-outline-variant" 
                 placeholder="e.g. Jane" 
                 type="text"
+                name="first_name"
                 required
               />
             </div>
@@ -75,6 +72,7 @@ export function ClientIntakeForm() {
                 className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all placeholder:text-outline-variant" 
                 placeholder="e.g. Doe" 
                 type="text"
+                name="last_name"
                 required
               />
             </div>
@@ -84,6 +82,7 @@ export function ClientIntakeForm() {
                 className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all" 
                 placeholder="Years" 
                 type="number"
+                name="age"
                 required
               />
             </div>
@@ -92,6 +91,7 @@ export function ClientIntakeForm() {
               <select 
                 className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all appearance-none"
                 defaultValue=""
+                name="gender"
                 required
               >
                 <option disabled value="">Select...</option>
@@ -100,7 +100,7 @@ export function ClientIntakeForm() {
                 <option value="other">Other</option>
               </select>
             </div>
-            <div className="col-span-1 md:col-span-2">
+            <div>
               <label className="font-label-caps text-label-caps text-on-surface-variant mb-base block uppercase tracking-wider">Email Address</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline-variant">mail</span>
@@ -108,6 +108,20 @@ export function ClientIntakeForm() {
                   className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT pl-10 pr-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all" 
                   placeholder="client@example.com" 
                   type="email"
+                  name="email"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="font-label-caps text-label-caps text-on-surface-variant mb-base block uppercase tracking-wider">Phone Number</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline-variant">call</span>
+                <input 
+                  className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT pl-10 pr-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all" 
+                  placeholder="(555) 123-4567" 
+                  type="tel"
+                  name="phone"
+                  required
                 />
               </div>
             </div>
@@ -142,9 +156,9 @@ export function ClientIntakeForm() {
           <button 
             className="font-label-caps text-label-caps px-xl py-[12px] rounded-DEFAULT bg-primary text-on-primary hover:bg-primary/90 transition-colors uppercase tracking-wider shadow-sm flex items-center gap-xs disabled:opacity-70" 
             type="submit"
-            disabled={isSubmitting}
+            disabled={isPending}
           >
-            {isSubmitting ? "Processing..." : "Continue to Health Data"}
+            {isPending ? "Processing..." : "Continue to Health Data"}
             <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
           </button>
         </div>
