@@ -501,8 +501,9 @@ export const config = {
 - **Subtle shadows** for depth — no harsh borders.
 - **Green primary palette** (health/nutrition theme).
 - **Amber accent** for warnings, highlights.
-- **Micro-animations**: `transition-all duration-200` on hover/focus states.
-- **Responsive**: mobile-first, sidebar collapses on small screens.
+- **Navigation/Sidebar**: Default state is collapsed showing only icons to maximize workspace efficiency. Expands to reveal text labels automatically on hover (`group-hover` functionality).
+- **Micro-animations**: `transition-all duration-200` on hover/focus states, especially for the sidebar expansion to keep it feeling snappy and responsive.
+- **Responsive**: mobile-first, sidebar fully collapses or hides on small screens and is accessible via a hamburger menu.
 - **Dark mode**: support via Tailwind `dark:` variant (future phase).
 
 ---
