@@ -50,3 +50,22 @@ export async function createClientAction(prevState: any, formData: FormData) {
   revalidatePath("/clients");
   redirect("/clients");
 }
+
+export async function getClientById(id: string) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("clients")
+    .select(`
+      *,
+      profiles:assigned_consultant(full_name)
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching client by id:", error);
+    return null;
+  }
+  return data;
+}

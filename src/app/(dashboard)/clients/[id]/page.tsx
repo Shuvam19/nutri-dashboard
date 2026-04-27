@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getClientById } from "@/app/actions/client";
 
 export const metadata = {
   title: "Client Profile | NutriCRM",
@@ -16,30 +17,61 @@ export default async function ClientProfilePage({
 }) {
   const { id } = await params;
 
-  // Stub data fetching - ready for Supabase backend
-  // const client = await getClientById(id);
-  // if (!client) notFound();
+  const clientData = await getClientById(id);
+  if (!clientData) notFound();
 
-  // Mocking the data for now based on the design
+  // BMI Calculation
+  let bmi: number | string = "--";
+  let bmiStatus = "--";
+  if (clientData.height_cm && clientData.weight_kg) {
+    const heightInMeters = clientData.height_cm / 100;
+    const rawBmi = clientData.weight_kg / (heightInMeters * heightInMeters);
+    bmi = parseFloat(rawBmi.toFixed(1));
+    
+    if (bmi < 18.5) bmiStatus = "Underweight";
+    else if (bmi < 25) bmiStatus = "Healthy";
+    else if (bmi < 30) bmiStatus = "Overweight";
+    else bmiStatus = "Obese";
+  }
+
+  // Formatting constraints
+  const names = clientData.full_name.split(" ");
+  const firstName = names[0];
+  const lastName = names.slice(1).join(" ");
+  
+  const formattedDate = new Date(clientData.created_at).toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
+  
+  let historyText = "None";
+  if (clientData.medical_history && typeof clientData.medical_history === 'object' && Object.keys(clientData.medical_history).length > 0) {
+     historyText = JSON.stringify(clientData.medical_history);
+  } else if (clientData.medical_history && typeof clientData.medical_history === 'string' && clientData.medical_history !== '{}') {
+     historyText = clientData.medical_history;
+  }
+
   const client = {
-    id: `VIT-${id.padStart(4, "0")}`,
-    firstName: "Emma",
-    lastName: "Watson",
-    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBvGAE6I5Ec0kq0gozWNxNofOHB75o61NP9TewIIDYOhU4g8ZV6eq46h6s9qvIgU3LI2EaCOtdRFXcLuqnjpdy0D5qqYJOScBhhNCb5qbpuwRax54LU9CiIMl9FjkAtcz6xTmAmbKwxh4iD45hJYu9ZK3VbWc704EJ6DSrBUDNWZkFo60bt12kG2C0iHXkQDZKhUxjBwTbJZshvM4B_KFK1ZxI-5z_4gFkq2rz726C09M0cvTOeii7NOJnm8kqIzlm31BrmnYZjQt4",
-    status: "Active",
-    memberSince: "Jan 2024",
+    id: clientData.id.slice(0, 8).toUpperCase(),
+    firstName: firstName,
+    lastName: lastName,
+    avatar: "https://ui-avatars.com/api/?name=" + encodeURIComponent(clientData.full_name) + "&background=random",
+    status: clientData.status.charAt(0).toUpperCase() + clientData.status.slice(1),
+    memberSince: formattedDate,
     stats: {
-      age: 28,
-      gender: "F",
-      height: 165,
-      weight: 58,
-      bmi: 21.3,
-      bmiStatus: "Healthy",
+      age: clientData.age,
+      gender: clientData.gender.charAt(0).toUpperCase(),
+      height: clientData.height_cm || "--",
+      weight: clientData.weight_kg || "--",
+      bmi: bmi,
+      bmiStatus: bmiStatus,
     },
     medical: {
-      restrictions: ["Vegan", "Gluten-Free", "Lactose Intolerant"],
-      history: "Iron Deficiency",
-      activeDiseases: "None",
+      restrictions: [
+        clientData.dietary_preference.replace("_", " ").toUpperCase(), 
+        ...(clientData.allergies || [])
+      ].filter(Boolean),
+      history: historyText,
+      activeDiseases: clientData.active_diseases && clientData.active_diseases.length > 0 
+        ? clientData.active_diseases.join(", ") 
+        : "None",
     }
   };
 
