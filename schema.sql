@@ -189,6 +189,9 @@ CREATE POLICY "food_select" ON public.food_items
 CREATE POLICY "food_admin" ON public.food_items
   FOR ALL USING (public.get_my_role() = 'admin');
 
+CREATE POLICY "food_consultant_insert" ON public.food_items
+  FOR INSERT WITH CHECK (public.get_my_role() = 'consultant');
+
 -- Diet Plans & Meals
 ALTER TABLE public.diet_plans ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.diet_plan_meals ENABLE ROW LEVEL SECURITY;
