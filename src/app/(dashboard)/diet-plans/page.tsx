@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import DietPlanActions from "@/components/diet-plans/DietPlanActions";
 
 export default async function DietPlansPage() {
   const cookieStore = await cookies();
@@ -159,17 +160,7 @@ export default async function DietPlansPage() {
                   <button className="text-primary hover:text-surface-tint font-body-sm text-body-sm font-semibold transition-colors">
                     Assign to Client
                   </button>
-                  <div className="flex gap-1">
-                    <button className="p-2 rounded-md text-outline hover:bg-surface-variant hover:text-on-surface transition-colors tooltip-trigger relative">
-                      <span className="material-symbols-outlined text-[20px]">visibility</span>
-                    </button>
-                    <button className="p-2 rounded-md text-outline hover:bg-surface-variant hover:text-on-surface transition-colors">
-                      <span className="material-symbols-outlined text-[20px]">edit</span>
-                    </button>
-                    <button className="p-2 rounded-md text-outline hover:bg-error-container hover:text-error transition-colors">
-                      <span className="material-symbols-outlined text-[20px]">delete</span>
-                    </button>
-                  </div>
+                  <DietPlanActions planId={plan.id} />
                 </div>
               </div>
             ))

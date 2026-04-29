@@ -102,10 +102,10 @@ export default async function ClientProfilePage({
               Client ID: #{client.id} • Member since {client.memberSince}
             </p>
             <div className="flex flex-wrap justify-center md:justify-start gap-3">
-              <button className="bg-surface-container text-secondary font-label-caps text-label-caps px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-surface-container-high transition-colors active:scale-95">
+              <Link href={`/clients/${clientData.id}/edit`} className="bg-surface-container text-secondary font-label-caps text-label-caps px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-surface-container-high transition-colors active:scale-95">
                 <span className="material-symbols-outlined text-[18px]">edit</span>
                 EDIT PROFILE
-              </button>
+              </Link>
               <button className="bg-primary text-on-primary font-label-caps text-label-caps px-4 py-2 rounded-lg flex items-center gap-2 shadow-md hover:bg-primary-container transition-colors active:scale-95">
                 <span className="material-symbols-outlined text-[18px]">add_circle</span>
                 CREATE DIET PLAN

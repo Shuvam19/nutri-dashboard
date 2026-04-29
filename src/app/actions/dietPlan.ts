@@ -134,3 +134,14 @@ export async function getDietPlanById(id: string) {
 
   return data;
 }
+
+export async function deleteDietPlan(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("diet_plans").delete().eq("id", id);
+  if (error) {
+    console.error("Error deleting plan:", error);
+    return { success: false, message: error.message };
+  }
+  revalidatePath("/diet-plans");
+  return { success: true };
+}
