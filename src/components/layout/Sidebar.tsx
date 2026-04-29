@@ -40,8 +40,12 @@ const navigation: NavItem[] = [
   },
   {
     name: "Appointments",
-    href: "/calendar",
+    href: "/appointments",
     icon: CalendarIcon,
+    children: [
+      { name: "View Appointments", href: "/appointments" },
+      { name: "Book New", href: "/appointments/new" },
+    ],
   },
   {
     name: "Diet Plans",

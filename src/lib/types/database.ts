@@ -38,6 +38,10 @@ export type MealSlot =
 
 export type PlanStatus = "draft" | "active" | "completed" | "archived";
 
+export type AppointmentStatus = "scheduled" | "completed" | "cancelled" | "no_show";
+
+export type AppointmentType = "initial_consultation" | "follow_up" | "check_in";
+
 // ---- Row Types ----
 
 export interface Profile {
@@ -130,6 +134,20 @@ export interface WhatsAppLog {
   sent_by: string;
   message_preview: string | null;
   sent_at: string;
+}
+
+export interface Appointment {
+  id: string;
+  client_id: string;
+  consultant_id: string;
+  appointment_date: string;
+  duration_minutes: number;
+  appointment_type: AppointmentType;
+  status: AppointmentStatus;
+  notes: string | null;
+  meeting_link: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 // ---- Join / View Types ----

@@ -7,6 +7,8 @@ CREATE TYPE public.client_status AS ENUM ('active', 'inactive', 'completed');
 CREATE TYPE public.meal_category AS ENUM ('breakfast', 'lunch', 'dinner', 'snack', 'beverage');
 CREATE TYPE public.meal_slot AS ENUM ('early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner', 'bedtime');
 CREATE TYPE public.plan_status AS ENUM ('draft', 'active', 'completed', 'archived');
+CREATE TYPE public.appointment_status AS ENUM ('scheduled', 'completed', 'cancelled', 'no_show');
+CREATE TYPE public.appointment_type AS ENUM ('initial_consultation', 'follow_up', 'check_in');
 
 -- 1. Profiles Table
 CREATE TABLE public.profiles (
@@ -96,7 +98,7 @@ CREATE INDEX idx_food_region  ON public.food_items USING GIN(region_tags);
 -- 4. Diet Plans Table
 CREATE TABLE public.diet_plans (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id     UUID NOT NULL REFERENCES public.clients(id) ON DELETE CASCADE,
+  client_id     UUID REFERENCES public.clients(id) ON DELETE CASCADE,
   created_by    UUID NOT NULL REFERENCES public.profiles(id),
   title         TEXT NOT NULL,
   start_date    DATE,
@@ -134,6 +136,21 @@ CREATE TABLE public.whatsapp_log (
   sent_by         UUID NOT NULL REFERENCES public.profiles(id),
   message_preview TEXT,
   sent_at         TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 7. Appointments Table
+CREATE TABLE public.appointments (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id           UUID NOT NULL REFERENCES public.clients(id) ON DELETE CASCADE,
+  consultant_id       UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  appointment_date    TIMESTAMPTZ NOT NULL,
+  duration_minutes    INT NOT NULL DEFAULT 30,
+  appointment_type    public.appointment_type NOT NULL DEFAULT 'follow_up',
+  status              public.appointment_status NOT NULL DEFAULT 'scheduled',
+  notes               TEXT,
+  meeting_link        TEXT,
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 
@@ -214,4 +231,16 @@ CREATE POLICY "meals_consultant" ON public.diet_plan_meals
     AND diet_plan_id IN (
       SELECT id FROM public.diet_plans WHERE created_by = (SELECT auth.uid())
     )
+  );
+
+-- Appointments
+ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "appointments_admin" ON public.appointments
+  FOR ALL USING (public.get_my_role() = 'admin');
+
+CREATE POLICY "appointments_consultant" ON public.appointments
+  FOR ALL USING (
+    public.get_my_role() = 'consultant'
+    AND consultant_id = (SELECT auth.uid())
   );
