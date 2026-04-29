@@ -57,5 +57,21 @@ export function formatTime(date: Date) {
 
 export function isToday(date: Date) {
   const today = new Date();
-  return isSameDay(date, today);
+}
+
+export function getDaysInWeek(currentDate: Date) {
+  const days = [];
+  const date = new Date(currentDate);
+  // Find Monday of this week
+  let dayOfWeek = date.getDay() - 1;
+  if (dayOfWeek === -1) dayOfWeek = 6;
+  
+  date.setDate(date.getDate() - dayOfWeek);
+  
+  for (let i = 0; i < 7; i++) {
+    days.push(new Date(date));
+    date.setDate(date.getDate() + 1);
+  }
+  
+  return days;
 }

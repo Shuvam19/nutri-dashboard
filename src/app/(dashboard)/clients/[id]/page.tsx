@@ -1,7 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getClientById } from "@/app/actions/client";
+import { getClientById, getClientDietPlans, getClientAppointments } from "@/app/actions/client";
+import ClientTabs from "@/components/clients/ClientTabs";
 
 export const metadata = {
   title: "Client Profile | NutriCRM",
@@ -17,7 +18,12 @@ export default async function ClientProfilePage({
 }) {
   const { id } = await params;
 
-  const clientData = await getClientById(id);
+  const [clientData, dietPlans, appointments] = await Promise.all([
+    getClientById(id),
+    getClientDietPlans(id),
+    getClientAppointments(id)
+  ]);
+  
   if (!clientData) notFound();
 
   // BMI Calculation
@@ -177,81 +183,7 @@ export default async function ClientProfilePage({
       </div>
 
       {/* Tabbed Section */}
-      <div className="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
-        <div className="flex border-b border-surface-container-highest">
-          <button className="flex-1 py-4 text-center font-label-caps text-label-caps border-b-2 border-primary text-primary bg-surface-container-low transition-all">DIET PLANS</button>
-          <button className="flex-1 py-4 text-center font-label-caps text-label-caps border-b-2 border-transparent text-on-surface-variant hover:bg-surface-container transition-all">APPOINTMENTS</button>
-        </div>
-        <div className="p-2">
-          {/* Diet Plans Sub-section */}
-          <div className="divide-y divide-surface-container">
-            <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:bg-surface-container-low rounded-lg transition-colors group gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined">restaurant_menu</span>
-                </div>
-                <div>
-                  <p className="font-body-md text-body-md font-semibold">Weight Loss Phase 1</p>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">Created on Sep 28, 2024</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="px-3 py-1 rounded-full bg-primary text-on-primary font-label-caps text-[10px]">ACTIVE</span>
-                <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors cursor-pointer">chevron_right</span>
-              </div>
-            </div>
-            <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:bg-surface-container-low rounded-lg transition-colors group gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined">fitness_center</span>
-                </div>
-                <div>
-                  <p className="font-body-md text-body-md font-semibold">Muscle Gain</p>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">Created on Jul 15, 2024</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-label-caps text-[10px]">COMPLETED</span>
-                <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors cursor-pointer">chevron_right</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Appointments Title */}
-          <div className="mt-8 px-4 pb-2 border-b border-surface-container-highest flex justify-between items-center">
-            <h4 className="font-label-caps text-label-caps text-on-surface-variant">UPCOMING APPOINTMENTS</h4>
-            <button className="text-secondary font-label-caps text-[10px] hover:underline">VIEW ALL</button>
-          </div>
-          <div className="divide-y divide-surface-container">
-            <div className="p-4 flex items-center justify-between hover:bg-surface-container-low rounded-lg transition-colors group">
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center justify-center w-12 h-12 bg-secondary-container text-on-secondary-container rounded-lg shrink-0">
-                  <span className="text-[10px] font-bold uppercase tracking-tighter">OCT</span>
-                  <span className="text-xl font-bold leading-none">12</span>
-                </div>
-                <div>
-                  <p className="font-body-md text-body-md font-semibold">Initial Consultation</p>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">10:00 AM • Video Call</p>
-                </div>
-              </div>
-              <span className="material-symbols-outlined text-outline group-hover:text-secondary transition-colors cursor-pointer">calendar_today</span>
-            </div>
-            <div className="p-4 flex items-center justify-between hover:bg-surface-container-low rounded-lg transition-colors group">
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center justify-center w-12 h-12 bg-surface-container-high text-on-surface-variant rounded-lg shrink-0">
-                  <span className="text-[10px] font-bold uppercase tracking-tighter">OCT</span>
-                  <span className="text-xl font-bold leading-none">26</span>
-                </div>
-                <div>
-                  <p className="font-body-md text-body-md font-semibold">Check-in</p>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">02:30 PM • In-Person</p>
-                </div>
-              </div>
-              <span className="material-symbols-outlined text-outline group-hover:text-secondary transition-colors cursor-pointer">calendar_today</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ClientTabs dietPlans={dietPlans} appointments={appointments} />
     </div>
   );
 }

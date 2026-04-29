@@ -69,3 +69,33 @@ export async function getClientById(id: string) {
   }
   return data;
 }
+
+export async function getClientDietPlans(clientId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("diet_plans")
+    .select("*")
+    .eq("client_id", clientId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching client diet plans:", error);
+    return [];
+  }
+  return data;
+}
+
+export async function getClientAppointments(clientId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("appointments")
+    .select("*")
+    .eq("client_id", clientId)
+    .order("appointment_date", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching client appointments:", error);
+    return [];
+  }
+  return data;
+}

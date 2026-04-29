@@ -158,7 +158,7 @@ export interface DietPlanMealWithFood extends DietPlanMeal {
 
 export interface DietPlanWithMeals extends DietPlan {
   meals: DietPlanMealWithFood[];
-  client: Pick<Client, "id" | "full_name" | "age" | "goals">;
+  client: Pick<Client, "id" | "full_name" | "age" | "goals" | "phone">;
 }
 
 export interface ClientWithConsultant extends Client {

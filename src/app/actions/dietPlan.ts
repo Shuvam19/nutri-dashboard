@@ -110,3 +110,27 @@ export async function saveDietPlan(prevState: any, formData: FormData) {
   revalidatePath("/diet-plans");
   redirect("/diet-plans");
 }
+
+export async function getDietPlanById(id: string) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("diet_plans")
+    .select(`
+      *,
+      client:clients(id, full_name, age, goals, phone),
+      meals:diet_plan_meals(
+        *,
+        food_item:food_items(*)
+      )
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching diet plan:", error);
+    return null;
+  }
+
+  return data;
+}
