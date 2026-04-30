@@ -47,13 +47,6 @@ export default async function ClientProfilePage({
   
   const formattedDate = new Date(clientData.created_at).toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
   
-  let historyText = "None";
-  if (clientData.medical_history && typeof clientData.medical_history === 'object' && Object.keys(clientData.medical_history).length > 0) {
-     historyText = JSON.stringify(clientData.medical_history);
-  } else if (clientData.medical_history && typeof clientData.medical_history === 'string' && clientData.medical_history !== '{}') {
-     historyText = clientData.medical_history;
-  }
-
   const client = {
     id: clientData.id.slice(0, 8).toUpperCase(),
     firstName: firstName,
@@ -74,10 +67,15 @@ export default async function ClientProfilePage({
         clientData.dietary_preference.replace("_", " ").toUpperCase(), 
         ...(clientData.allergies || [])
       ].filter(Boolean),
-      history: historyText,
       activeDiseases: clientData.active_diseases && clientData.active_diseases.length > 0 
         ? clientData.active_diseases.join(", ") 
         : "None",
+      pastDiseases: clientData.past_diseases && clientData.past_diseases.length > 0
+        ? clientData.past_diseases.join(", ")
+        : "None",
+      region: clientData.region || "None",
+      goals: clientData.goals || "None",
+      notes: clientData.notes || "None",
     }
   };
 
@@ -155,11 +153,11 @@ export default async function ClientProfilePage({
         <div className="lg:col-span-5 bg-surface-container-lowest rounded-xl p-6 shadow-card">
           <h3 className="font-h3 text-h3 flex items-center gap-2 mb-6">
             <span className="material-symbols-outlined text-tertiary">medical_services</span>
-            Dietary &amp; Medical
+            Dietary, Medical &amp; Preferences
           </h3>
           <div className="space-y-6">
             <div>
-              <p className="font-label-caps text-label-caps text-on-surface-variant mb-2">RESTRICTIONS</p>
+              <p className="font-label-caps text-label-caps text-on-surface-variant mb-2">DIETARY &amp; ALLERGIES</p>
               <div className="flex flex-wrap gap-2">
                 {client.medical.restrictions.map((res, i) => (
                   <span key={i} className="bg-primary-fixed text-on-primary-fixed font-data-tabular text-[12px] px-3 py-1 rounded-full border border-primary/10">
@@ -170,12 +168,24 @@ export default async function ClientProfilePage({
             </div>
             <div className="grid grid-cols-2 gap-gutter">
               <div>
-                <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">HISTORY</p>
-                <p className="font-body-md text-body-md">{client.medical.history}</p>
-              </div>
-              <div>
                 <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">ACTIVE DISEASES</p>
                 <p className="font-body-md text-body-md text-outline">{client.medical.activeDiseases}</p>
+              </div>
+              <div>
+                <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">PAST DISEASES</p>
+                <p className="font-body-md text-body-md text-outline">{client.medical.pastDiseases}</p>
+              </div>
+              <div>
+                <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">REGION / CUISINE</p>
+                <p className="font-body-md text-body-md text-outline">{client.medical.region}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">GOALS</p>
+                <p className="font-body-md text-body-md text-outline">{client.medical.goals}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">NOTES</p>
+                <p className="font-body-md text-body-md text-outline whitespace-pre-wrap">{client.medical.notes}</p>
               </div>
             </div>
           </div>

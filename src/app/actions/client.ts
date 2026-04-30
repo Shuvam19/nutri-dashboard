@@ -7,7 +7,7 @@ import { GenderType, ActivityLevel, DietaryPreference } from "@/lib/types/databa
 
 export async function getClients() {
   const supabase = await createClient();
-  
+
   const { data, error } = await supabase
     .from("clients")
     .select(`
@@ -45,15 +45,15 @@ export async function getPaginatedClients(page: number = 1, limit: number = 10, 
   if (filters?.search) {
     query = query.or(`full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`);
   }
-  
+
   if (filters?.status && filters.status !== "all") {
     query = query.eq("status", filters.status);
   }
-  
+
   if (filters?.diet && filters.diet !== "all") {
     query = query.eq("dietary_preference", filters.diet);
   }
-  
+
   if (filters?.consultant && filters.consultant !== "all") {
     if (filters.consultant === "my_clients") {
       const { data: { user } } = await supabase.auth.getUser();
@@ -71,15 +71,15 @@ export async function getPaginatedClients(page: number = 1, limit: number = 10, 
     console.error("Error fetching paginated clients:", error);
     return { data: [], count: 0 };
   }
-  
+
   return { data, count: count || 0 };
 }
 
 export async function createClientAction(prevState: any, formData: FormData) {
   const supabase = await createClient();
-  
+
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   // Handle array fields — supports both checkbox (getAll) and comma-separated string
   const parseArrayField = (key: string): string[] => {
     const all = formData.getAll(key) as string[];
@@ -97,7 +97,7 @@ export async function createClientAction(prevState: any, formData: FormData) {
     gender: formData.get("gender") as GenderType,
     email: (formData.get("email") as string) || null,
     phone: formData.get("phone") as string,
-    
+
     // Health Data
     height_cm: formData.get("height_cm") ? parseFloat(formData.get("height_cm") as string) : null,
     weight_kg: formData.get("weight_kg") ? parseFloat(formData.get("weight_kg") as string) : null,
@@ -105,7 +105,7 @@ export async function createClientAction(prevState: any, formData: FormData) {
     active_diseases: parseArrayField("active_diseases"),
     past_diseases: parseArrayField("past_diseases"),
     allergies: parseArrayField("allergies"),
-    
+
     // Preferences & Notes
     dietary_preference: (formData.get("dietary_preference") as DietaryPreference) || "veg",
     region: parseArrayField("region").join(", ") || null,
@@ -113,7 +113,7 @@ export async function createClientAction(prevState: any, formData: FormData) {
     notes: (formData.get("notes") as string) || null,
 
     onboarded_by: user?.id,
-    assigned_consultant: user?.id, 
+    assigned_consultant: user?.id,
   };
 
   const { error } = await supabase.from("clients").insert(clientData);
@@ -129,7 +129,7 @@ export async function createClientAction(prevState: any, formData: FormData) {
 
 export async function getClientById(id: string) {
   const supabase = await createClient();
-  
+
   const { data, error } = await supabase
     .from("clients")
     .select(`
@@ -178,7 +178,7 @@ export async function getClientAppointments(clientId: string) {
 
 export async function updateClientAction(id: string, prevState: any, formData: FormData) {
   const supabase = await createClient();
-  
+
   // Handle array fields — supports both checkbox (getAll) and comma-separated string
   const parseArrayField = (key: string): string[] => {
     const all = formData.getAll(key) as string[];
@@ -195,14 +195,14 @@ export async function updateClientAction(id: string, prevState: any, formData: F
     gender: formData.get("gender") as GenderType,
     email: (formData.get("email") as string) || null,
     phone: formData.get("phone") as string,
-    
+
     height_cm: formData.get("height_cm") ? parseFloat(formData.get("height_cm") as string) : null,
     weight_kg: formData.get("weight_kg") ? parseFloat(formData.get("weight_kg") as string) : null,
     daily_activity_level: (formData.get("daily_activity_level") as ActivityLevel) || "sedentary",
     active_diseases: parseArrayField("active_diseases"),
     past_diseases: parseArrayField("past_diseases"),
     allergies: parseArrayField("allergies"),
-    
+
     dietary_preference: (formData.get("dietary_preference") as DietaryPreference) || "veg",
     region: parseArrayField("region").join(", ") || null,
     goals: (formData.get("goals") as string) || null,
@@ -232,7 +232,7 @@ export async function getConsultants() {
     .select("id, full_name, role")
     .in("role", ["admin", "consultant"])
     .order("full_name");
-    
+
   if (error) {
     console.error("Error fetching consultants:", error);
     return [];

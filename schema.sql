@@ -210,6 +210,20 @@ CREATE POLICY "clients_consultant_select" ON public.clients
     AND assigned_consultant = (SELECT auth.uid())
   );
 
+-- Consultant: update their assigned clients
+CREATE POLICY "clients_consultant_update" ON public.clients
+  FOR UPDATE USING (
+    public.get_my_role() = 'consultant'
+    AND assigned_consultant = (SELECT auth.uid())
+  );
+
+-- Receptionist: update clients they onboarded
+CREATE POLICY "clients_receptionist_update" ON public.clients
+  FOR UPDATE USING (
+    public.get_my_role() = 'receptionist'
+    AND onboarded_by = (SELECT auth.uid())
+  );
+
 -- Food Items
 ALTER TABLE public.food_items ENABLE ROW LEVEL SECURITY;
 
