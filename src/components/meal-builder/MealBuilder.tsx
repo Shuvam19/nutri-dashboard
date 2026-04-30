@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, useActionState } from "react";
 import Link from "next/link";
-import { saveDietPlan, searchFoodItems, getClientsList } from "@/app/actions/dietPlan";
-import { FoodItem, MealSlot } from "@/lib/types/database";
+import { saveDietPlan, searchFoodItemsFiltered, getClientsList } from "@/app/actions/dietPlan";
+import { getTaxonomyTagsBatch, TaxonomyTag } from "@/app/actions/taxonomy";
+import { FoodItem, MealSlot, MealCategory } from "@/lib/types/database";
+import { MEAL_CATEGORIES } from "@/lib/constants";
 
 type MealItem = {
   id: string; // unique local ID
@@ -41,6 +43,18 @@ export function MealBuilder() {
   const [foodResults, setFoodResults] = useState<FoodItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   
+  // Filter State
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterDietary, setFilterDietary] = useState<string[]>([]);
+  const [filterDisease, setFilterDisease] = useState<string[]>([]);
+  const [filterRegion, setFilterRegion] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Taxonomy tags
+  const [dietaryTags, setDietaryTags] = useState<TaxonomyTag[]>([]);
+  const [diseaseTags, setDiseaseTags] = useState<TaxonomyTag[]>([]);
+  const [regionTags, setRegionTags] = useState<TaxonomyTag[]>([]);
+  
   // Builder State
   const [slots, setSlots] = useState<Slot[]>([
     { id: "slot-1", meal_type: "early_morning", items: [] },
@@ -48,21 +62,32 @@ export function MealBuilder() {
   ]);
   const [activeSlotId, setActiveSlotId] = useState<string | null>(slots[0].id);
 
-  // Fetch initial clients
+  // Fetch initial data
   useEffect(() => {
     getClientsList().then(data => setClients(data));
+    getTaxonomyTagsBatch(["dietary_tag", "disease_tag", "region_tag"]).then(tags => {
+      setDietaryTags(tags["dietary_tag"] || []);
+      setDiseaseTags(tags["disease_tag"] || []);
+      setRegionTags(tags["region_tag"] || []);
+    });
   }, []);
 
-  // Search Foods Effect with debounce
+  // Search Foods Effect with debounce + filters
   useEffect(() => {
     const timer = setTimeout(async () => {
       setIsSearching(true);
-      const results = await searchFoodItems(searchQuery);
+      const results = await searchFoodItemsFiltered({
+        query: searchQuery,
+        category: filterCategory || undefined,
+        dietary: filterDietary.length > 0 ? filterDietary : undefined,
+        disease: filterDisease.length > 0 ? filterDisease : undefined,
+        region: filterRegion || undefined,
+      });
       setFoodResults(results);
       setIsSearching(false);
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, filterCategory, filterDietary, filterDisease, filterRegion]);
 
   // Derived Macros
   const totals = slots.reduce((acc, slot) => {
@@ -148,6 +173,21 @@ export function MealBuilder() {
     }));
   });
 
+  // Filter helpers
+  const activeFilterCount = [filterCategory, ...filterDietary, ...filterDisease, filterRegion].filter(Boolean).length;
+  const clearFilters = () => {
+    setFilterCategory("");
+    setFilterDietary([]);
+    setFilterDisease([]);
+    setFilterRegion("");
+  };
+  const toggleDietaryFilter = (val: string) => {
+    setFilterDietary(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
+  };
+  const toggleDiseaseFilter = (val: string) => {
+    setFilterDisease(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA" && (e.target as HTMLElement).tagName !== "BUTTON") {
       e.preventDefault();
@@ -176,7 +216,7 @@ export function MealBuilder() {
               name="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="font-h2 text-h2 text-on-surface bg-transparent border-b border-transparent hover:border-outline-variant focus:border-primary focus:outline-none transition-colors w-full max-w-md"
+              className="font-h2 text-h2 text-on-surface bg-transparent border-b-2 border-outline-variant/50 hover:border-outline-variant focus:border-primary focus:outline-none transition-colors w-full py-1 px-1"
               placeholder="Template Title"
               required
             />
@@ -363,11 +403,26 @@ export function MealBuilder() {
 
           {/* Quick Food Search Widget */}
           <div className="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant overflow-hidden flex flex-col max-h-[calc(100vh-350px)] min-h-[400px]">
-            <div className="p-4 border-b border-surface-variant bg-surface">
-              <h3 className="font-h3 text-h3 text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">kitchen</span>
-                Food Bucket
-              </h3>
+            <div className="p-4 border-b border-surface-variant bg-surface space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-h3 text-h3 text-on-surface flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">kitchen</span>
+                  Food Bucket
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 text-xs font-medium ${showFilters ? 'bg-primary text-on-primary' : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant'}`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">tune</span>
+                  Filters
+                  {activeFilterCount > 0 && (
+                    <span className="bg-error text-on-error rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </button>
+              </div>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">
                   search
@@ -380,7 +435,94 @@ export function MealBuilder() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              {/* Category Pills */}
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setFilterCategory("")}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${!filterCategory ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`}
+                >
+                  All
+                </button>
+                {MEAL_CATEGORIES.map(cat => (
+                  <button
+                    key={cat.value}
+                    type="button"
+                    onClick={() => setFilterCategory(filterCategory === cat.value ? "" : cat.value)}
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${filterCategory === cat.value ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* Collapsible Filter Panel */}
+            {showFilters && (
+              <div className="p-4 border-b border-surface-variant bg-surface-container-low space-y-4 animate-in">
+                <div className="flex items-center justify-between">
+                  <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">Advanced Filters</span>
+                  {activeFilterCount > 0 && (
+                    <button type="button" onClick={clearFilters} className="text-primary text-xs font-medium hover:underline">
+                      Clear All
+                    </button>
+                  )}
+                </div>
+                {/* Dietary */}
+                {dietaryTags.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-on-surface-variant mb-2 uppercase tracking-wider">Dietary</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {dietaryTags.map(tag => (
+                        <button
+                          key={tag.value}
+                          type="button"
+                          onClick={() => toggleDietaryFilter(tag.value)}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors ${filterDietary.includes(tag.value) ? 'border-primary text-primary bg-primary-container/20' : 'border-outline-variant text-on-surface-variant hover:border-primary'}`}
+                        >
+                          {tag.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Disease */}
+                {diseaseTags.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-on-surface-variant mb-2 uppercase tracking-wider">Disease Friendly</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {diseaseTags.map(tag => (
+                        <button
+                          key={tag.value}
+                          type="button"
+                          onClick={() => toggleDiseaseFilter(tag.value)}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors ${filterDisease.includes(tag.value) ? 'border-primary text-primary bg-primary-container/20' : 'border-outline-variant text-on-surface-variant hover:border-primary'}`}
+                        >
+                          {tag.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Region */}
+                {regionTags.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-on-surface-variant mb-2 uppercase tracking-wider">Region</p>
+                    <select
+                      value={filterRegion}
+                      onChange={(e) => setFilterRegion(e.target.value)}
+                      className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-primary outline-none"
+                    >
+                      <option value="">All Regions</option>
+                      {regionTags.map(tag => (
+                        <option key={tag.value} value={tag.value}>{tag.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="overflow-y-auto p-2 flex-1 relative">
               {isSearching && (
                 <div className="absolute inset-0 bg-surface/50 flex items-center justify-center z-10">
@@ -390,22 +532,27 @@ export function MealBuilder() {
               
               {foodResults.length === 0 && !isSearching ? (
                 <div className="text-center p-6 text-on-surface-variant">
-                  {searchQuery ? "No foods found." : "Start typing to search your Food Bucket."}
+                  <span className="material-symbols-outlined text-3xl text-outline mb-2 block">search_off</span>
+                  <p className="text-sm">{searchQuery || activeFilterCount > 0 ? "No foods match your search or filters." : "Start typing or use filters to find foods."}</p>
                 </div>
               ) : (
                 <>
-                  <p className="px-2 py-1 font-label-caps text-label-caps text-outline uppercase mt-2 mb-1">
-                    Results
+                  <p className="px-2 py-1 font-label-caps text-label-caps text-outline uppercase mt-1 mb-1">
+                    {foodResults.length} Result{foodResults.length !== 1 ? 's' : ''}
                   </p>
                   {foodResults.map(food => (
-                    <div key={food.id} onClick={() => addFoodToSlot(food)} className="flex items-center justify-between p-2 hover:bg-surface-container-low rounded-lg cursor-pointer group">
-                      <div>
-                        <p className="font-body-sm text-body-sm text-on-surface font-medium">{food.name}</p>
-                        <p className="font-data-tabular text-data-tabular text-outline text-[12px]">
-                          {food.serving_size} • {food.calories_per_serving} kcal
-                        </p>
+                    <div key={food.id} onClick={() => addFoodToSlot(food)} className="flex items-center justify-between p-2.5 hover:bg-surface-container-low rounded-lg cursor-pointer group">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-body-sm text-body-sm text-on-surface font-medium truncate">{food.name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[11px] font-semibold text-primary">{food.calories_per_serving} kcal</span>
+                          <span className="text-[10px] text-on-surface-variant">P:{food.protein_g}g</span>
+                          <span className="text-[10px] text-on-surface-variant">C:{food.carbs_g}g</span>
+                          <span className="text-[10px] text-on-surface-variant">F:{food.fat_g}g</span>
+                        </div>
+                        <p className="text-[10px] text-outline mt-0.5">{food.serving_size} • {food.category}</p>
                       </div>
-                      <button type="button" disabled={!activeSlotId} className="w-8 h-8 rounded-full bg-surface-variant text-primary flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary hover:text-on-primary disabled:opacity-30 disabled:cursor-not-allowed">
+                      <button type="button" disabled={!activeSlotId} className="w-8 h-8 rounded-full bg-surface-variant text-primary flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary hover:text-on-primary disabled:opacity-30 disabled:cursor-not-allowed ml-2">
                         <span className="material-symbols-outlined text-[18px]">add</span>
                       </button>
                     </div>

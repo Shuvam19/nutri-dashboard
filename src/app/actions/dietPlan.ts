@@ -5,6 +5,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { MealSlot, PlanStatus } from "@/lib/types/database";
 
+export interface FoodSearchFilters {
+  query?: string;
+  category?: string;
+  dietary?: string[];
+  disease?: string[];
+  region?: string;
+}
+
 export async function searchFoodItems(query: string) {
   const supabase = await createClient();
   
@@ -17,6 +25,36 @@ export async function searchFoodItems(query: string) {
   
   if (error) {
     console.error("Error searching foods:", error);
+    return [];
+  }
+  return data;
+}
+
+export async function searchFoodItemsFiltered(filters: FoodSearchFilters) {
+  const supabase = await createClient();
+  
+  let q = supabase.from("food_items").select("*").eq("is_active", true);
+  
+  if (filters.query) {
+    q = q.ilike("name", `%${filters.query}%`);
+  }
+  if (filters.category) {
+    q = q.eq("category", filters.category);
+  }
+  if (filters.dietary && filters.dietary.length > 0) {
+    q = q.overlaps("dietary_tags", filters.dietary);
+  }
+  if (filters.disease && filters.disease.length > 0) {
+    q = q.overlaps("disease_tags", filters.disease);
+  }
+  if (filters.region) {
+    q = q.contains("region_tags", [filters.region]);
+  }
+  
+  const { data, error } = await q.order("name").limit(30);
+  
+  if (error) {
+    console.error("Error searching foods with filters:", error);
     return [];
   }
   return data;
