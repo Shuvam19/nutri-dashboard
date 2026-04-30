@@ -43,3 +43,48 @@ export async function createFoodAction(prevState: any, formData: FormData) {
   revalidatePath("/food-bucket");
   redirect("/food-bucket");
 }
+
+export type FoodFilters = {
+  search?: string;
+  dietary?: string; // comma separated
+  disease?: string; // comma separated
+  region?: string;
+};
+
+export async function getPaginatedFoods(page: number = 1, limit: number = 12, filters?: FoodFilters) {
+  const supabase = await createClient();
+  const offset = (page - 1) * limit;
+
+  let query = supabase
+    .from("food_items")
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false });
+
+  if (filters?.search) {
+    query = query.ilike("name", `%${filters.search}%`);
+  }
+  
+  if (filters?.dietary) {
+    const tags = filters.dietary.split(',');
+    // supabase contains checks if array column contains all these elements
+    query = query.contains("dietary_tags", tags);
+  }
+  
+  if (filters?.disease) {
+    const tags = filters.disease.split(',');
+    query = query.contains("disease_tags", tags);
+  }
+  
+  if (filters?.region && filters.region !== "All Regions") {
+    query = query.contains("region_tags", [filters.region]);
+  }
+
+  const { data, count, error } = await query.range(offset, offset + limit - 1);
+  
+  if (error) {
+    console.error("Error fetching foods:", error);
+    return { data: [], count: 0 };
+  }
+  
+  return { data, count: count || 0 };
+}

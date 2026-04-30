@@ -19,6 +19,11 @@ export default function ClientSearchInput() {
       return;
     }
 
+    const currentSearch = searchParams.get("search") || "";
+    if (currentSearch === debouncedSearch) {
+      return; // Prevent infinite loop if the URL already matches our state
+    }
+
     const params = new URLSearchParams(searchParams);
     
     if (debouncedSearch) {
