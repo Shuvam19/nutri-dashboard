@@ -7,11 +7,11 @@ export const metadata = {
 };
 
 export default async function NewClientPage() {
-  const tags = await getTaxonomyTagsBatch(["disease", "allergy"]);
+  const tags = await getTaxonomyTagsBatch(["disease", "allergy", "region_tag"]);
 
   return (
     <div className="py-base">
-      <ClientIntakeForm diseases={tags.disease} allergies={tags.allergy} />
+      <ClientIntakeForm diseases={tags.disease} allergies={tags.allergy} regions={tags.region_tag} />
     </div>
   );
 }

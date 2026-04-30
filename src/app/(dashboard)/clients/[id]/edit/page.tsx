@@ -18,7 +18,7 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
   const { id } = await params;
   const [client, tags] = await Promise.all([
     getClientById(id),
-    getTaxonomyTagsBatch(["disease", "allergy"]),
+    getTaxonomyTagsBatch(["disease", "allergy", "region_tag"]),
   ]);
 
   if (!client) {
@@ -27,7 +27,7 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
 
   return (
     <div className="py-base">
-      <ClientIntakeForm initialData={client} diseases={tags.disease} allergies={tags.allergy} />
+      <ClientIntakeForm initialData={client} diseases={tags.disease} allergies={tags.allergy} regions={tags.region_tag} />
     </div>
   );
 }

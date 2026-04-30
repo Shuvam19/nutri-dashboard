@@ -108,7 +108,7 @@ export async function createClientAction(prevState: any, formData: FormData) {
     
     // Preferences & Notes
     dietary_preference: (formData.get("dietary_preference") as DietaryPreference) || "veg",
-    region: (formData.get("region") as string) || null,
+    region: parseArrayField("region").join(", ") || null,
     goals: (formData.get("goals") as string) || null,
     notes: (formData.get("notes") as string) || null,
 
@@ -204,7 +204,7 @@ export async function updateClientAction(id: string, prevState: any, formData: F
     allergies: parseArrayField("allergies"),
     
     dietary_preference: (formData.get("dietary_preference") as DietaryPreference) || "veg",
-    region: (formData.get("region") as string) || null,
+    region: parseArrayField("region").join(", ") || null,
     goals: (formData.get("goals") as string) || null,
     notes: (formData.get("notes") as string) || null,
     updated_at: new Date().toISOString()

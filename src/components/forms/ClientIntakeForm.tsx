@@ -12,9 +12,10 @@ interface ClientIntakeFormProps {
   initialData?: Client;
   diseases?: TaxonomyTag[];
   allergies?: TaxonomyTag[];
+  regions?: TaxonomyTag[];
 }
 
-export function ClientIntakeForm({ initialData, diseases = [], allergies = [] }: ClientIntakeFormProps) {
+export function ClientIntakeForm({ initialData, diseases = [], allergies = [], regions = [] }: ClientIntakeFormProps) {
   const action = initialData ? updateClientAction.bind(null, initialData.id) : createClientAction;
   const [state, formAction, isPending] = useActionState(action, null);
 
@@ -351,15 +352,35 @@ export function ClientIntakeForm({ initialData, diseases = [], allergies = [] }:
                     <option value="eggetarian">Eggetarian</option>
                   </select>
                 </div>
-                <div>
+                <div className="md:col-span-2">
                   <label className="font-label-caps text-label-caps text-on-surface-variant mb-base block uppercase tracking-wider">Region (Optional)</label>
-                  <input 
-                    className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all" 
-                    placeholder="e.g. North India, Mediterranean" 
-                    type="text"
-                    name="region"
-                    defaultValue={initialData?.region || ""}
-                  />
+                  {regions.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {regions.map((r) => (
+                        <label
+                          key={r.value}
+                          className="inline-flex items-center px-3 py-1.5 border border-outline-variant rounded-full cursor-pointer hover:bg-surface-variant transition-colors has-[:checked]:bg-primary-container/20 has-[:checked]:border-primary has-[:checked]:text-primary"
+                        >
+                          <input
+                            name="region"
+                            value={r.label}
+                            className="sr-only"
+                            type="checkbox"
+                            defaultChecked={initialData?.region?.includes(r.label)}
+                          />
+                          <span className="text-body-sm font-body-sm font-medium">{r.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <input 
+                      className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all" 
+                      placeholder="e.g. North India, Mediterranean" 
+                      type="text"
+                      name="region"
+                      defaultValue={initialData?.region || ""}
+                    />
+                  )}
                 </div>
               </div>
             </section>
