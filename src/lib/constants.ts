@@ -48,84 +48,11 @@ export const MEAL_SLOTS = [
   { value: "bedtime", label: "Bedtime", time: "10:00 PM" },
 ] as const;
 
-// ---- Dietary Tags (for food items) ----
-export const DIETARY_TAGS = [
-  "veg",
-  "non_veg",
-  "vegan",
-  "gluten_free",
-  "dairy_free",
-  "sugar_free",
-  "high_protein",
-  "high_fiber",
-  "low_carb",
-  "low_fat",
-  "keto",
-  "whole_grain",
-] as const;
+// ---- Tags (Dietary, Disease, Region, Allergies, Diseases) ----
+// NOTE: These are now managed dynamically from the `taxonomy_tags` database table.
+// Use `getTaxonomyTags()` or `getTaxonomyTagsBatch()` from `@/app/actions/taxonomy`
+// to fetch them at runtime.
 
-// ---- Disease Tags (food compatibility) ----
-export const DISEASE_TAGS = [
-  "diabetes_friendly",
-  "heart_healthy",
-  "hypertension_safe",
-  "thyroid_friendly",
-  "pcod_friendly",
-  "kidney_friendly",
-  "liver_friendly",
-  "cholesterol_safe",
-  "gastric_friendly",
-  "anti_inflammatory",
-] as const;
-
-// ---- Region Tags ----
-export const REGION_TAGS = [
-  "north_indian",
-  "south_indian",
-  "east_indian",
-  "west_indian",
-  "bengali",
-  "gujarati",
-  "maharashtrian",
-  "punjabi",
-  "rajasthani",
-  "tamil",
-  "kerala",
-  "continental",
-  "universal",
-] as const;
-
-// ---- Common Diseases (for client intake) ----
-export const COMMON_DISEASES = [
-  "Diabetes (Type 1)",
-  "Diabetes (Type 2)",
-  "Hypertension",
-  "Thyroid (Hypo)",
-  "Thyroid (Hyper)",
-  "PCOD/PCOS",
-  "Cholesterol (High)",
-  "Heart Disease",
-  "Kidney Disease",
-  "Liver Disease",
-  "Gastric Issues",
-  "Arthritis",
-  "Asthma",
-  "Anemia",
-  "Obesity",
-] as const;
-
-// ---- Common Allergies ----
-export const COMMON_ALLERGIES = [
-  "Milk/Dairy",
-  "Gluten/Wheat",
-  "Peanuts",
-  "Tree Nuts",
-  "Soy",
-  "Eggs",
-  "Fish",
-  "Shellfish",
-  "Sesame",
-] as const;
 
 // ---- Client Status ----
 export const CLIENT_STATUSES = [

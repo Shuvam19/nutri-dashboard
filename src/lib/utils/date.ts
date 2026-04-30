@@ -55,8 +55,13 @@ export function formatTime(date: Date) {
   return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 }
 
-export function isToday(date: Date) {
+export function isToday(date: Date): boolean {
   const today = new Date();
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  );
 }
 
 export function getDaysInWeek(currentDate: Date) {

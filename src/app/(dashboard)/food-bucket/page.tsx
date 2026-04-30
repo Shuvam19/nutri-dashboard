@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPaginatedFoods } from "@/app/actions/food";
+import { getTaxonomyTagsBatch } from "@/app/actions/taxonomy";
 import FoodFiltersSidebar from "@/components/food-bucket/FoodFiltersSidebar";
 
 export default async function FoodBucketPage({ searchParams }: { searchParams: Promise<{ page?: string, search?: string, dietary?: string, disease?: string, region?: string }> }) {
@@ -12,7 +13,10 @@ export default async function FoodBucketPage({ searchParams }: { searchParams: P
 
   const limit = 12;
 
-  const { data: foodItems, count } = await getPaginatedFoods(page, limit, { search, dietary, disease, region });
+  const [{ data: foodItems, count }, tags] = await Promise.all([
+    getPaginatedFoods(page, limit, { search, dietary, disease, region }),
+    getTaxonomyTagsBatch(["dietary_tag", "disease_tag", "region_tag"]),
+  ]);
 
   const totalPages = Math.ceil(count / limit);
   const startCount = count > 0 ? (page - 1) * limit + 1 : 0;
@@ -27,7 +31,11 @@ export default async function FoodBucketPage({ searchParams }: { searchParams: P
 
   return (
     <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-background min-h-[calc(100vh-4rem)]">
-      <FoodFiltersSidebar />
+      <FoodFiltersSidebar
+        dietaryTags={tags.dietary_tag}
+        diseaseTags={tags.disease_tag}
+        regionTags={tags.region_tag}
+      />
 
       {/* Main Grid Area */}
       <div className="flex-1 p-6 md:p-8 bg-background overflow-y-auto">

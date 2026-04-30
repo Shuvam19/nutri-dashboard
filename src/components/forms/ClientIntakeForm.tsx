@@ -4,10 +4,17 @@ import React, { useActionState, useState } from "react";
 import Link from "next/link";
 import { createClientAction, updateClientAction } from "@/app/actions/client";
 import { Client } from "@/lib/types/database";
+import { TaxonomyTag } from "@/app/actions/taxonomy";
 
 type TabId = "personal" | "health" | "preferences" | "goals";
 
-export function ClientIntakeForm({ initialData }: { initialData?: Client }) {
+interface ClientIntakeFormProps {
+  initialData?: Client;
+  diseases?: TaxonomyTag[];
+  allergies?: TaxonomyTag[];
+}
+
+export function ClientIntakeForm({ initialData, diseases = [], allergies = [] }: ClientIntakeFormProps) {
   const action = initialData ? updateClientAction.bind(null, initialData.id) : createClientAction;
   const [state, formAction, isPending] = useActionState(action, null);
 
@@ -226,34 +233,94 @@ export function ClientIntakeForm({ initialData }: { initialData?: Client }) {
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant mb-base block uppercase tracking-wider">Active Diseases (comma-separated)</label>
-                  <input 
-                    className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all" 
-                    placeholder="e.g. Diabetes, Hypertension" 
-                    type="text"
-                    name="active_diseases"
-                    defaultValue={initialData?.active_diseases?.join(", ") || ""}
-                  />
+                  <label className="font-label-caps text-label-caps text-on-surface-variant mb-base block uppercase tracking-wider">Active Diseases</label>
+                  {diseases.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {diseases.map((d) => (
+                        <label
+                          key={d.value}
+                          className="inline-flex items-center px-3 py-1.5 border border-outline-variant rounded-full cursor-pointer hover:bg-surface-variant transition-colors has-[:checked]:bg-secondary/10 has-[:checked]:border-secondary has-[:checked]:text-secondary"
+                        >
+                          <input
+                            name="active_diseases"
+                            value={d.label}
+                            className="sr-only"
+                            type="checkbox"
+                            defaultChecked={initialData?.active_diseases?.includes(d.label)}
+                          />
+                          <span className="text-body-sm font-body-sm font-medium">{d.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <input
+                      className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
+                      placeholder="e.g. Diabetes, Hypertension"
+                      type="text"
+                      name="active_diseases"
+                      defaultValue={initialData?.active_diseases?.join(", ") || ""}
+                    />
+                  )}
                 </div>
                 <div className="md:col-span-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant mb-base block uppercase tracking-wider">Past Diseases (comma-separated)</label>
-                  <input 
-                    className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all" 
-                    placeholder="e.g. Appendicitis" 
-                    type="text"
-                    name="past_diseases"
-                    defaultValue={initialData?.past_diseases?.join(", ") || ""}
-                  />
+                  <label className="font-label-caps text-label-caps text-on-surface-variant mb-base block uppercase tracking-wider">Past Diseases</label>
+                  {diseases.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {diseases.map((d) => (
+                        <label
+                          key={d.value}
+                          className="inline-flex items-center px-3 py-1.5 border border-outline-variant rounded-full cursor-pointer hover:bg-surface-variant transition-colors has-[:checked]:bg-outline/10 has-[:checked]:border-outline has-[:checked]:text-outline"
+                        >
+                          <input
+                            name="past_diseases"
+                            value={d.label}
+                            className="sr-only"
+                            type="checkbox"
+                            defaultChecked={initialData?.past_diseases?.includes(d.label)}
+                          />
+                          <span className="text-body-sm font-body-sm font-medium">{d.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <input
+                      className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
+                      placeholder="e.g. Appendicitis"
+                      type="text"
+                      name="past_diseases"
+                      defaultValue={initialData?.past_diseases?.join(", ") || ""}
+                    />
+                  )}
                 </div>
                 <div className="md:col-span-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant mb-base block uppercase tracking-wider">Allergies (comma-separated)</label>
-                  <input 
-                    className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all" 
-                    placeholder="e.g. Peanuts, Shellfish" 
-                    type="text"
-                    name="allergies"
-                    defaultValue={initialData?.allergies?.join(", ") || ""}
-                  />
+                  <label className="font-label-caps text-label-caps text-on-surface-variant mb-base block uppercase tracking-wider">Allergies</label>
+                  {allergies.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {allergies.map((a) => (
+                        <label
+                          key={a.value}
+                          className="inline-flex items-center px-3 py-1.5 border border-outline-variant rounded-full cursor-pointer hover:bg-surface-variant transition-colors has-[:checked]:bg-error-container/20 has-[:checked]:border-error has-[:checked]:text-error"
+                        >
+                          <input
+                            name="allergies"
+                            value={a.label}
+                            className="sr-only"
+                            type="checkbox"
+                            defaultChecked={initialData?.allergies?.includes(a.label)}
+                          />
+                          <span className="text-body-sm font-body-sm font-medium">{a.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <input
+                      className="w-full font-body-md text-body-md text-on-surface bg-surface border border-outline-variant rounded-DEFAULT px-sm py-[10px] focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
+                      placeholder="e.g. Peanuts, Shellfish"
+                      type="text"
+                      name="allergies"
+                      defaultValue={initialData?.allergies?.join(", ") || ""}
+                    />
+                  )}
                 </div>
               </div>
             </section>

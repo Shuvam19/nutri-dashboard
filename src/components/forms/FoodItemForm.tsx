@@ -3,25 +3,23 @@
 import React, { useState, useActionState } from "react";
 import Link from "next/link";
 import { createFoodAction } from "@/app/actions/food";
+import { TaxonomyTag } from "@/app/actions/taxonomy";
 
-export function FoodItemForm() {
+interface FoodItemFormProps {
+  dietaryTags: TaxonomyTag[];
+  diseaseTags: TaxonomyTag[];
+  regionTags: TaxonomyTag[];
+}
+
+export function FoodItemForm({ dietaryTags, diseaseTags, regionTags }: FoodItemFormProps) {
   const [state, formAction, isPending] = useActionState(createFoodAction, null);
 
-  const [diseaseSearch, setDiseaseSearch] = useState("");
-  const [diseaseTags, setDiseaseTags] = useState<string[]>([]);
+  const [selectedDiseaseTags, setSelectedDiseaseTags] = useState<string[]>([]);
 
-  const handleAddDisease = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && diseaseSearch.trim() !== "") {
-      e.preventDefault();
-      if (!diseaseTags.includes(diseaseSearch.trim())) {
-        setDiseaseTags([...diseaseTags, diseaseSearch.trim()]);
-      }
-      setDiseaseSearch("");
-    }
-  };
-
-  const removeDisease = (tagToRemove: string) => {
-    setDiseaseTags(diseaseTags.filter(tag => tag !== tagToRemove));
+  const toggleDiseaseTag = (value: string) => {
+    setSelectedDiseaseTags((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
+    );
   };
 
   // Prevent default form submission on enter key inside inputs
@@ -284,71 +282,69 @@ export function FoodItemForm() {
               </h2>
             </div>
             <div className="p-6 flex-1 space-y-6">
-              {/* Dietary Tags */}
+              {/* Dietary Tags — Dynamic from DB */}
               <div>
                 <label className="block font-label-caps text-label-caps text-on-surface-variant mb-3 flex items-center justify-between">
                   Dietary Suitability
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  <label className="inline-flex items-center px-3 py-1.5 border border-outline-variant rounded-full cursor-pointer hover:bg-surface-variant transition-colors has-[:checked]:bg-primary-container/20 has-[:checked]:border-primary has-[:checked]:text-primary">
-                    <input name="dietary_tags" value="vegan" className="sr-only" type="checkbox" />
-                    <span className="text-body-sm font-body-sm font-medium">Vegan</span>
-                  </label>
-                  <label className="inline-flex items-center px-3 py-1.5 border border-outline-variant rounded-full cursor-pointer hover:bg-surface-variant transition-colors has-[:checked]:bg-primary-container/20 has-[:checked]:border-primary has-[:checked]:text-primary">
-                    <input name="dietary_tags" value="gluten_free" className="sr-only" type="checkbox" />
-                    <span className="text-body-sm font-body-sm font-medium">Gluten-Free</span>
-                  </label>
-                  <label className="inline-flex items-center px-3 py-1.5 border border-outline-variant rounded-full cursor-pointer hover:bg-surface-variant transition-colors has-[:checked]:bg-primary-container/20 has-[:checked]:border-primary has-[:checked]:text-primary">
-                    <input name="dietary_tags" value="keto" className="sr-only" type="checkbox" />
-                    <span className="text-body-sm font-body-sm font-medium">Keto</span>
-                  </label>
-                  <label className="inline-flex items-center px-3 py-1.5 border border-outline-variant rounded-full cursor-pointer hover:bg-surface-variant transition-colors has-[:checked]:bg-primary-container/20 has-[:checked]:border-primary has-[:checked]:text-primary">
-                    <input name="dietary_tags" value="dairy_free" className="sr-only" type="checkbox" />
-                    <span className="text-body-sm font-body-sm font-medium">Dairy-Free</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Disease Tags */}
-              <div>
-                <label className="block font-label-caps text-label-caps text-on-surface-variant mb-3 flex items-center justify-between">
-                  Clinical Conditions
-                </label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
-                  <input
-                    className="w-full pl-9 pr-4 py-2 border border-outline-variant rounded-lg bg-surface focus:outline-none focus:ring-2 focus:ring-secondary text-body-sm text-on-surface mb-3"
-                    placeholder="Type and press Enter..."
-                    type="text"
-                    value={diseaseSearch}
-                    onChange={(e) => setDiseaseSearch(e.target.value)}
-                    onKeyDown={handleAddDisease}
-                  />
-                </div>
-                <input type="hidden" name="disease_tags" value={JSON.stringify(diseaseTags)} />
-                <div className="flex flex-wrap gap-2">
-                  {diseaseTags.map((tag) => (
-                    <span key={tag} className="inline-flex items-center gap-1 px-3 py-1 bg-surface-container border border-outline-variant rounded-md text-body-sm font-body-sm text-on-surface">
-                      {tag}
-                      <button type="button" onClick={() => removeDisease(tag)} className="text-on-surface-variant hover:text-error rounded-full p-0.5">
-                        <span className="material-symbols-outlined text-sm block">close</span>
-                      </button>
-                    </span>
+                  {dietaryTags.map((tag) => (
+                    <label
+                      key={tag.value}
+                      className="inline-flex items-center px-3 py-1.5 border border-outline-variant rounded-full cursor-pointer hover:bg-surface-variant transition-colors has-[:checked]:bg-primary-container/20 has-[:checked]:border-primary has-[:checked]:text-primary"
+                    >
+                      <input name="dietary_tags" value={tag.value} className="sr-only" type="checkbox" />
+                      <span className="text-body-sm font-body-sm font-medium">{tag.label}</span>
+                    </label>
                   ))}
                 </div>
               </div>
 
-              {/* Region Tags */}
+              {/* Disease Tags — Dynamic from DB */}
+              <div>
+                <label className="block font-label-caps text-label-caps text-on-surface-variant mb-3 flex items-center justify-between">
+                  Clinical Conditions
+                </label>
+                <input type="hidden" name="disease_tags" value={JSON.stringify(selectedDiseaseTags)} />
+                <div className="flex flex-wrap gap-2">
+                  {diseaseTags.map((tag) => {
+                    const isSelected = selectedDiseaseTags.includes(tag.value);
+                    return (
+                      <button
+                        key={tag.value}
+                        type="button"
+                        onClick={() => toggleDiseaseTag(tag.value)}
+                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full border font-body-sm text-body-sm font-medium transition-colors ${
+                          isSelected
+                            ? "bg-primary-container/20 border-primary text-primary"
+                            : "border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary"
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="material-symbols-outlined text-sm">check</span>
+                        )}
+                        {tag.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Region Tags — Dynamic from DB */}
               <div>
                 <label className="block font-label-caps text-label-caps text-on-surface-variant mb-3">
                   Regional Availability
                 </label>
-                <select name="region_tags" className="w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface appearance-none focus:outline-none focus:ring-2 focus:ring-secondary text-body-md font-body-md text-on-surface">
-                  <option value="Global">Global / Universal</option>
-                  <option value="Mediterranean">Mediterranean</option>
-                  <option value="East Asian">East Asian</option>
-                  <option value="South Asian">South Asian</option>
-                  <option value="Latin American">Latin American</option>
+                <select
+                  name="region_tags"
+                  className="w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface appearance-none focus:outline-none focus:ring-2 focus:ring-secondary text-body-md font-body-md text-on-surface"
+                >
+                  <option value="universal">Universal / Global</option>
+                  {regionTags.filter(t => t.value !== "universal").map((tag) => (
+                    <option key={tag.value} value={tag.value}>
+                      {tag.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

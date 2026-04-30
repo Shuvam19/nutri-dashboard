@@ -1,6 +1,7 @@
 import React from "react";
 import { ClientIntakeForm } from "@/components/forms/ClientIntakeForm";
 import { getClientById } from "@/app/actions/client";
+import { getTaxonomyTagsBatch } from "@/app/actions/taxonomy";
 import { notFound } from "next/navigation";
 
 export const metadata = {
@@ -15,7 +16,10 @@ interface EditClientPageProps {
 
 export default async function EditClientPage({ params }: EditClientPageProps) {
   const { id } = await params;
-  const client = await getClientById(id);
+  const [client, tags] = await Promise.all([
+    getClientById(id),
+    getTaxonomyTagsBatch(["disease", "allergy"]),
+  ]);
 
   if (!client) {
     notFound();
@@ -23,7 +27,7 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
 
   return (
     <div className="py-base">
-      <ClientIntakeForm initialData={client} />
+      <ClientIntakeForm initialData={client} diseases={tags.disease} allergies={tags.allergy} />
     </div>
   );
 }

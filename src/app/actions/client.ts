@@ -80,9 +80,15 @@ export async function createClientAction(prevState: any, formData: FormData) {
   
   const { data: { user } } = await supabase.auth.getUser();
   
-  const parseArray = (str: string) => {
-    if (!str || str.trim() === '') return [];
-    return str.split(',').map(s => s.trim()).filter(Boolean);
+  // Handle array fields — supports both checkbox (getAll) and comma-separated string
+  const parseArrayField = (key: string): string[] => {
+    const all = formData.getAll(key) as string[];
+    if (all.length > 1) return all.filter(Boolean);
+    const single = all[0] || '';
+    if (!single.trim()) return [];
+    // If single value contains commas, split it (legacy text input fallback)
+    if (single.includes(',')) return single.split(',').map(s => s.trim()).filter(Boolean);
+    return [single];
   };
 
   const clientData = {
@@ -96,9 +102,9 @@ export async function createClientAction(prevState: any, formData: FormData) {
     height_cm: formData.get("height_cm") ? parseFloat(formData.get("height_cm") as string) : null,
     weight_kg: formData.get("weight_kg") ? parseFloat(formData.get("weight_kg") as string) : null,
     daily_activity_level: (formData.get("daily_activity_level") as ActivityLevel) || "sedentary",
-    active_diseases: parseArray(formData.get("active_diseases") as string),
-    past_diseases: parseArray(formData.get("past_diseases") as string),
-    allergies: parseArray(formData.get("allergies") as string),
+    active_diseases: parseArrayField("active_diseases"),
+    past_diseases: parseArrayField("past_diseases"),
+    allergies: parseArrayField("allergies"),
     
     // Preferences & Notes
     dietary_preference: (formData.get("dietary_preference") as DietaryPreference) || "veg",
@@ -173,9 +179,14 @@ export async function getClientAppointments(clientId: string) {
 export async function updateClientAction(id: string, prevState: any, formData: FormData) {
   const supabase = await createClient();
   
-  const parseArray = (str: string) => {
-    if (!str || str.trim() === '') return [];
-    return str.split(',').map(s => s.trim()).filter(Boolean);
+  // Handle array fields — supports both checkbox (getAll) and comma-separated string
+  const parseArrayField = (key: string): string[] => {
+    const all = formData.getAll(key) as string[];
+    if (all.length > 1) return all.filter(Boolean);
+    const single = all[0] || '';
+    if (!single.trim()) return [];
+    if (single.includes(',')) return single.split(',').map(s => s.trim()).filter(Boolean);
+    return [single];
   };
 
   const clientData = {
@@ -188,9 +199,9 @@ export async function updateClientAction(id: string, prevState: any, formData: F
     height_cm: formData.get("height_cm") ? parseFloat(formData.get("height_cm") as string) : null,
     weight_kg: formData.get("weight_kg") ? parseFloat(formData.get("weight_kg") as string) : null,
     daily_activity_level: (formData.get("daily_activity_level") as ActivityLevel) || "sedentary",
-    active_diseases: parseArray(formData.get("active_diseases") as string),
-    past_diseases: parseArray(formData.get("past_diseases") as string),
-    allergies: parseArray(formData.get("allergies") as string),
+    active_diseases: parseArrayField("active_diseases"),
+    past_diseases: parseArrayField("past_diseases"),
+    allergies: parseArrayField("allergies"),
     
     dietary_preference: (formData.get("dietary_preference") as DietaryPreference) || "veg",
     region: (formData.get("region") as string) || null,

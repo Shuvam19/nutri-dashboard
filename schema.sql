@@ -152,6 +152,19 @@ CREATE TABLE public.appointments (
   created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+-- 8. Taxonomy Tags Lookup Table (dynamic tag management)
+CREATE TABLE public.taxonomy_tags (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category    TEXT NOT NULL,       -- 'dietary_tag', 'disease_tag', 'region_tag', 'allergy', 'disease'
+  value       TEXT NOT NULL,       -- machine key
+  label       TEXT NOT NULL,       -- display label
+  sort_order  INT NOT NULL DEFAULT 0,
+  is_active   BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX idx_taxonomy_category_value ON public.taxonomy_tags(category, value);
+CREATE INDEX idx_taxonomy_category ON public.taxonomy_tags(category);
 
 
 -- Row Level Security (RLS) Policies
@@ -244,3 +257,12 @@ CREATE POLICY "appointments_consultant" ON public.appointments
     public.get_my_role() = 'consultant'
     AND consultant_id = (SELECT auth.uid())
   );
+
+-- Taxonomy Tags
+ALTER TABLE public.taxonomy_tags ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "taxonomy_select" ON public.taxonomy_tags
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "taxonomy_admin" ON public.taxonomy_tags
+  FOR ALL USING (public.get_my_role() = 'admin');
