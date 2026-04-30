@@ -12,6 +12,7 @@ A CRM and meal-planning tool for nutritionists / dietitians. It replaces paper-b
 - **Onboards clients** via structured intake forms (age, activity level, medical history, diseases).
 - **Manages a food bucket** — a master database of foods tagged by region, dietary preference, and disease compatibility.
 - **Builds diet plans** by selecting foods from the bucket, arranging them into daily meal slots, and previewing / exporting as PDF.
+- **Manages appointments** — scheduling initial consultations and follow-up sessions for clients.
 - **Sends plans via WhatsApp** using manual `wa.me` deep links (no API).
 
 ### User Roles
@@ -57,17 +58,24 @@ src/
 │   ├── (dashboard)/             # Protected routes (shared sidebar layout)
 │   │   ├── layout.tsx           # Sidebar + topbar shell
 │   │   ├── page.tsx             # Dashboard home / overview
+│   │   ├── calendar/
+│   │   │   └── page.tsx         # Full-view appointment calendar
+│   │   ├── appointments/
+│   │   │   ├── page.tsx         # List of appointments
+│   │   │   └── new/page.tsx     # Schedule new appointment
 │   │   ├── clients/
 │   │   │   ├── page.tsx         # Client list
 │   │   │   ├── new/page.tsx     # Onboarding form
-│   │   │   └── [id]/page.tsx    # Client detail
+│   │   │   ├── [id]/page.tsx    # Client detail
+│   │   │   └── [id]/edit/page.tsx # Edit client profile
 │   │   ├── food-bucket/
 │   │   │   ├── page.tsx         # Food list with filters
 │   │   │   └── new/page.tsx     # Add/edit food item
 │   │   ├── diet-plans/
 │   │   │   ├── page.tsx         # Plan list
 │   │   │   ├── new/page.tsx     # Meal builder
-│   │   │   └── [id]/page.tsx    # Plan detail + PDF preview
+│   │   │   ├── [id]/page.tsx    # Plan detail + PDF preview
+│   │   │   └── [id]/edit/page.tsx # Edit existing plan
 │   │   └── settings/
 │   │       └── page.tsx         # User/role management (admin only)
 │   ├── api/
@@ -77,8 +85,10 @@ src/
 │   └── page.tsx                 # Landing → redirect to /login or /dashboard
 ├── components/
 │   ├── ui/                      # Primitives: Button, Input, Card, Modal, Badge, Select, Table
-│   ├── forms/                   # ClientIntakeForm, FoodItemForm
+│   ├── forms/                   # ClientIntakeForm, FoodItemForm, AppointmentForm
 │   ├── meal-builder/            # MealBuilder, MealSlotCard, FoodSelector
+│   ├── calendar/                # AppointmentCalendar
+│   ├── layout/                  # Sidebar, Topbar
 │   └── pdf/                     # PdfPreview, PdfDownloadButton
 ├── lib/
 │   ├── supabase/
@@ -114,6 +124,8 @@ CREATE TYPE public.client_status AS ENUM ('active', 'inactive', 'completed');
 CREATE TYPE public.meal_category AS ENUM ('breakfast', 'lunch', 'dinner', 'snack', 'beverage');
 CREATE TYPE public.meal_slot AS ENUM ('early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner', 'bedtime');
 CREATE TYPE public.plan_status AS ENUM ('draft', 'active', 'completed', 'archived');
+CREATE TYPE public.appointment_status AS ENUM ('scheduled', 'completed', 'cancelled', 'no_show');
+CREATE TYPE public.appointment_type AS ENUM ('initial_consultation', 'follow_up', 'check_in');
 ```
 
 ### 4.2 `profiles`
@@ -262,6 +274,42 @@ CREATE TABLE public.whatsapp_log (
   message_preview TEXT,
   sent_at         TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+### 4.8 `appointments`
+
+```sql
+CREATE TABLE public.appointments (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id           UUID NOT NULL REFERENCES public.clients(id) ON DELETE CASCADE,
+  consultant_id       UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  appointment_date    TIMESTAMPTZ NOT NULL,
+  duration_minutes    INT NOT NULL DEFAULT 30,
+  appointment_type    public.appointment_type NOT NULL DEFAULT 'follow_up',
+  status              public.appointment_status NOT NULL DEFAULT 'scheduled',
+  notes               TEXT,
+  meeting_link        TEXT,
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+### 4.9 `taxonomy_tags`
+
+Dynamic tag management for dietary preferences, diseases, and regions.
+
+```sql
+CREATE TABLE public.taxonomy_tags (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category    TEXT NOT NULL,       -- 'dietary_tag', 'disease_tag', 'region_tag', 'allergy', 'disease'
+  value       TEXT NOT NULL,       -- machine key (e.g., 'gluten_free')
+  label       TEXT NOT NULL,       -- display label (e.g., 'Gluten-Free')
+  sort_order  INT NOT NULL DEFAULT 0,
+  is_active   BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX idx_taxonomy_category_value ON public.taxonomy_tags(category, value);
+```
 ```
 
 ---
@@ -323,6 +371,20 @@ CREATE POLICY "clients_consultant_select" ON public.clients
     public.get_my_role() = 'consultant'
     AND assigned_consultant = (SELECT auth.uid())
   );
+
+-- Consultant: update their assigned clients
+CREATE POLICY "clients_consultant_update" ON public.clients
+  FOR UPDATE USING (
+    public.get_my_role() = 'consultant'
+    AND assigned_consultant = (SELECT auth.uid())
+  );
+
+-- Receptionist: update clients they onboarded
+CREATE POLICY "clients_receptionist_update" ON public.clients
+  FOR UPDATE USING (
+    public.get_my_role() = 'receptionist'
+    AND onboarded_by = (SELECT auth.uid())
+  );
 ```
 
 ### food_items
@@ -367,6 +429,33 @@ CREATE POLICY "meals_consultant" ON public.diet_plan_meals
       SELECT id FROM public.diet_plans WHERE created_by = (SELECT auth.uid())
     )
   );
+
+### appointments
+
+```sql
+ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "appointments_admin" ON public.appointments
+  FOR ALL USING (public.get_my_role() = 'admin');
+
+CREATE POLICY "appointments_consultant" ON public.appointments
+  FOR ALL USING (
+    public.get_my_role() = 'consultant'
+    AND consultant_id = (SELECT auth.uid())
+  );
+```
+
+### taxonomy_tags
+
+```sql
+ALTER TABLE public.taxonomy_tags ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "taxonomy_select" ON public.taxonomy_tags
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "taxonomy_admin" ON public.taxonomy_tags
+  FOR ALL USING (public.get_my_role() = 'admin');
+```
 ```
 
 ---
@@ -427,11 +516,14 @@ export const config = {
 | `Card` | Server | `ui/Card.tsx` | Container with shadow, padding |
 | `Modal` | Client | `ui/Modal.tsx` | Dialog overlay |
 | `DataTable` | Client | `ui/DataTable.tsx` | Sortable, filterable table |
+| `Sidebar` | Client | `layout/Sidebar.tsx` | Collapsible icon-based navigation |
+| `Topbar` | Client | `layout/Topbar.tsx` | Breadcrumbs, User menu, Search |
 | `ClientIntakeForm` | Client | `forms/ClientIntakeForm.tsx` | Multi-step onboarding form |
 | `FoodItemForm` | Client | `forms/FoodItemForm.tsx` | Food CRUD with tag selection |
+| `AppointmentForm` | Client | `forms/AppointmentForm.tsx` | Schedule / Edit appointments |
 | `MealBuilder` | Client | `meal-builder/MealBuilder.tsx` | Day grid + meal slot layout |
 | `FoodSelector` | Client | `meal-builder/FoodSelector.tsx` | Filterable food picker panel |
-| `MealSlotCard` | Client | `meal-builder/MealSlotCard.tsx` | Single meal slot with food items |
+| `AppointmentCalendar` | Client | `calendar/AppointmentCalendar.tsx` | Monthly/Weekly view for scheduling |
 | `PdfPreview` | Client | `pdf/PdfPreview.tsx` | Iframe PDF preview |
 | `PdfDownloadButton` | Client | `pdf/PdfDownloadButton.tsx` | Generate + download trigger |
 
@@ -458,6 +550,7 @@ export const config = {
 - **Component props** — always define an explicit `interface` (not inline types).
 - **Server Actions** — return `{ success: boolean; error?: string; data?: T }`.
 - **Enums as const arrays** — use `as const` arrays in `constants.ts` and derive types with `typeof`.
+- **Form Data Helpers** — Use `parseArrayField` for handling multi-select checkboxes (e.g., diseases, allergies) in server actions to ensure data persistence.
 
 ---
 
