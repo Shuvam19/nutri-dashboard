@@ -1,8 +1,14 @@
 import Link from "next/link";
-import { getClients } from "@/app/actions/client";
+import { getPaginatedClients } from "@/app/actions/client";
 
-export default async function ClientsPage() {
-  const clients = await getClients();
+export default async function ClientsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const resolvedSearchParams = await searchParams;
+  const page = parseInt(resolvedSearchParams.page || "1", 10);
+  const limit = 10;
+  const { data: clients, count } = await getPaginatedClients(page, limit);
+  const totalPages = Math.ceil(count / limit);
+  const startCount = (page - 1) * limit + 1;
+  const endCount = Math.min(page * limit, count);
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-base">
@@ -23,9 +29,9 @@ export default async function ClientsPage() {
           <label className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Search Roster</label>
           <div className="relative">
             <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
-            <input 
-              className="w-full pl-xl pr-sm py-sm rounded-lg border border-outline-variant bg-surface focus:ring-2 focus:ring-secondary focus:border-secondary font-body-md text-body-md text-on-surface outline-none transition-all placeholder-outline-variant" 
-              placeholder="Client Name, Email or ID Number" 
+            <input
+              className="w-full pl-xl pr-sm py-sm rounded-lg border border-outline-variant bg-surface focus:ring-2 focus:ring-secondary focus:border-secondary font-body-md text-body-md text-on-surface outline-none transition-all placeholder-outline-variant"
+              placeholder="Client Name, Email or ID Number"
               type="text"
             />
           </div>
@@ -139,24 +145,62 @@ export default async function ClientsPage() {
           </table>
         </div>
         <div className="px-md py-sm border-t border-surface-dim bg-surface-container-low flex items-center justify-between mt-auto">
-          <span className="font-body-sm text-body-sm text-on-surface-variant">Showing <span className="font-semibold text-on-surface">1</span> to <span className="font-semibold text-on-surface">4</span> of <span className="font-semibold text-on-surface">128</span> clients</span>
-          <div className="flex gap-1">
-            <button className="px-3 py-1.5 rounded-md border border-outline-variant text-outline font-body-sm text-body-sm flex items-center gap-1 opacity-50 cursor-not-allowed" disabled>
-              <span className="material-symbols-outlined text-[16px]">chevron_left</span>
-              Prev
-            </button>
-            <div className="hidden sm:flex gap-1 mx-2">
-              <button className="w-8 h-8 rounded-md border border-secondary bg-secondary text-on-secondary font-body-sm text-body-sm flex items-center justify-center font-medium shadow-card">1</button>
-              <button className="w-8 h-8 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant font-body-sm text-body-sm flex items-center justify-center transition-colors">2</button>
-              <button className="w-8 h-8 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant font-body-sm text-body-sm flex items-center justify-center transition-colors">3</button>
-              <span className="w-8 h-8 flex items-center justify-center text-outline">...</span>
-              <button className="w-8 h-8 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant font-body-sm text-body-sm flex items-center justify-center transition-colors">12</button>
+          <span className="font-body-sm text-body-sm text-on-surface-variant">
+            Showing <span className="font-semibold text-on-surface">{count > 0 ? startCount : 0}</span> to <span className="font-semibold text-on-surface">{endCount}</span> of <span className="font-semibold text-on-surface">{count}</span> clients
+          </span>
+          {totalPages > 1 && (
+            <div className="flex gap-1">
+              {page > 1 ? (
+                <Link href={`/clients?page=${page - 1}`} className="px-3 py-1.5 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant font-body-sm text-body-sm flex items-center gap-1 transition-colors">
+                  <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+                  Prev
+                </Link>
+              ) : (
+                <button className="px-3 py-1.5 rounded-md border border-outline-variant text-outline font-body-sm text-body-sm flex items-center gap-1 opacity-50 cursor-not-allowed" disabled>
+                  <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+                  Prev
+                </button>
+              )}
+
+              <div className="hidden sm:flex gap-1 mx-2">
+                {Array.from({ length: totalPages }).map((_, i) => {
+                  const p = i + 1;
+                  // Show current page, first, last, and neighbors
+                  if (p === 1 || p === totalPages || (p >= page - 1 && p <= page + 1)) {
+                    return (
+                      <Link
+                        key={p}
+                        href={`/clients?page=${p}`}
+                        className={`w-8 h-8 rounded-md flex items-center justify-center font-body-sm text-body-sm transition-colors ${p === page
+                            ? 'border border-secondary bg-secondary text-on-secondary font-medium shadow-card'
+                            : 'border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant'
+                          }`}
+                      >
+                        {p}
+                      </Link>
+                    );
+                  }
+                  // Ellipsis for gaps
+                  if (p === page - 2 || p === page + 2) {
+                    return <span key={p} className="w-8 h-8 flex items-center justify-center text-outline">...</span>;
+                  }
+                  return null;
+                })}
+              </div>
+
+              {page < totalPages ? (
+                <Link href={`/clients?page=${page + 1}`} className="px-3 py-1.5 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant font-body-sm text-body-sm flex items-center gap-1 transition-colors">
+                  Next
+                  <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+                </Link>
+              ) : (
+                <button className="px-3 py-1.5 rounded-md border border-outline-variant text-outline font-body-sm text-body-sm flex items-center gap-1 opacity-50 cursor-not-allowed" disabled>
+                  Next
+                  <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+                </button>
+              )}
             </div>
-            <button className="px-3 py-1.5 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant font-body-sm text-body-sm flex items-center gap-1 transition-colors">
-              Next
-              <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </>

@@ -23,6 +23,27 @@ export async function getClients() {
   return data;
 }
 
+export async function getPaginatedClients(page: number = 1, limit: number = 10) {
+  const supabase = await createClient();
+  const offset = (page - 1) * limit;
+
+  const { data, count, error } = await supabase
+    .from("clients")
+    .select(`
+      *,
+      profiles:assigned_consultant(full_name)
+    `, { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    console.error("Error fetching paginated clients:", error);
+    return { data: [], count: 0 };
+  }
+  
+  return { data, count: count || 0 };
+}
+
 export async function createClientAction(prevState: any, formData: FormData) {
   const supabase = await createClient();
   
