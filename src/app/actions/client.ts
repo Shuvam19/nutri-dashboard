@@ -23,18 +23,49 @@ export async function getClients() {
   return data;
 }
 
-export async function getPaginatedClients(page: number = 1, limit: number = 10) {
+export type ClientFilters = {
+  search?: string;
+  status?: string;
+  consultant?: string;
+  diet?: string;
+};
+
+export async function getPaginatedClients(page: number = 1, limit: number = 10, filters?: ClientFilters) {
   const supabase = await createClient();
   const offset = (page - 1) * limit;
 
-  const { data, count, error } = await supabase
+  let query = supabase
     .from("clients")
     .select(`
       *,
       profiles:assigned_consultant(full_name)
     `, { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(offset, offset + limit - 1);
+    .order("created_at", { ascending: false });
+
+  if (filters?.search) {
+    query = query.or(`full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`);
+  }
+  
+  if (filters?.status && filters.status !== "all") {
+    query = query.eq("status", filters.status);
+  }
+  
+  if (filters?.diet && filters.diet !== "all") {
+    query = query.eq("dietary_preference", filters.diet);
+  }
+  
+  if (filters?.consultant && filters.consultant !== "all") {
+    if (filters.consultant === "my_clients") {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        query = query.eq("assigned_consultant", user.id);
+      }
+    } else {
+      query = query.eq("assigned_consultant", filters.consultant);
+    }
+  }
+
+  const { data, count, error } = await query.range(offset, offset + limit - 1);
 
   if (error) {
     console.error("Error fetching paginated clients:", error);
@@ -181,4 +212,19 @@ export async function updateClientAction(id: string, prevState: any, formData: F
   revalidatePath(`/clients/${id}`);
   revalidatePath("/clients");
   redirect(`/clients/${id}`);
+}
+
+export async function getConsultants() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, full_name, role")
+    .in("role", ["admin", "consultant"])
+    .order("full_name");
+    
+  if (error) {
+    console.error("Error fetching consultants:", error);
+    return [];
+  }
+  return data;
 }

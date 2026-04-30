@@ -1,14 +1,36 @@
 import Link from "next/link";
-import { getPaginatedClients } from "@/app/actions/client";
+import { getPaginatedClients, getConsultants } from "@/app/actions/client";
+import ClientSearchInput from "@/components/clients/ClientSearchInput";
+import ClientFilters from "@/components/clients/ClientFilters";
 
-export default async function ClientsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+export default async function ClientsPage({ searchParams }: { searchParams: Promise<{ page?: string, search?: string, status?: string, consultant?: string, diet?: string }> }) {
   const resolvedSearchParams = await searchParams;
   const page = parseInt(resolvedSearchParams.page || "1", 10);
+  const search = resolvedSearchParams.search || "";
+  const status = resolvedSearchParams.status || "";
+  const consultant = resolvedSearchParams.consultant || "";
+  const diet = resolvedSearchParams.diet || "";
+  
   const limit = 10;
-  const { data: clients, count } = await getPaginatedClients(page, limit);
+  
+  const [clientsResult, consultantsList] = await Promise.all([
+    getPaginatedClients(page, limit, { search, status, consultant, diet }),
+    getConsultants()
+  ]);
+  
+  const { data: clients, count } = clientsResult;
+  
   const totalPages = Math.ceil(count / limit);
-  const startCount = (page - 1) * limit + 1;
+  const startCount = count > 0 ? (page - 1) * limit + 1 : 0;
   const endCount = Math.min(page * limit, count);
+  
+  // Build query string for pagination links
+  const params = new URLSearchParams();
+  if (search) params.set("search", search);
+  if (status) params.set("status", status);
+  if (consultant) params.set("consultant", consultant);
+  if (diet) params.set("diet", diet);
+  const searchParamString = params.toString() ? `&${params.toString()}` : '';
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-base">
@@ -29,51 +51,11 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
           <label className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Search Roster</label>
           <div className="relative">
             <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
-            <input
-              className="w-full pl-xl pr-sm py-sm rounded-lg border border-outline-variant bg-surface focus:ring-2 focus:ring-secondary focus:border-secondary font-body-md text-body-md text-on-surface outline-none transition-all placeholder-outline-variant"
-              placeholder="Client Name, Email or ID Number"
-              type="text"
-            />
+            <ClientSearchInput />
           </div>
         </div>
         <div className="w-full xl:flex-1 flex flex-wrap sm:flex-nowrap gap-md">
-          <div className="flex-1 flex flex-col gap-xs">
-            <label className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Status Filter</label>
-            <div className="relative">
-              <select className="w-full px-sm py-sm rounded-lg border border-outline-variant bg-surface focus:ring-2 focus:ring-secondary focus:border-secondary font-body-md text-body-md text-on-surface outline-none transition-all appearance-none cursor-pointer pr-xl">
-                <option>All Statuses</option>
-                <option>Active Consultation</option>
-                <option>On Maintenance</option>
-                <option>Inactive</option>
-              </select>
-              <span className="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-xs">
-            <label className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Assigned Consultant</label>
-            <div className="relative">
-              <select className="w-full px-sm py-sm rounded-lg border border-outline-variant bg-surface focus:ring-2 focus:ring-secondary focus:border-secondary font-body-md text-body-md text-on-surface outline-none transition-all appearance-none cursor-pointer pr-xl">
-                <option>My Clients (Dr. Smith)</option>
-                <option>All Clinic Consultants</option>
-                <option>Dr. Sarah Jenkins</option>
-                <option>Mark Thompson (RD)</option>
-              </select>
-              <span className="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-xs">
-            <label className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Dietary Profile</label>
-            <div className="relative">
-              <select className="w-full px-sm py-sm rounded-lg border border-outline-variant bg-surface focus:ring-2 focus:ring-secondary focus:border-secondary font-body-md text-body-md text-on-surface outline-none transition-all appearance-none cursor-pointer pr-xl">
-                <option>Any Preference</option>
-                <option>Plant-Based / Vegan</option>
-                <option>Ketogenic</option>
-                <option>Gluten-Free</option>
-                <option>Low FODMAP</option>
-              </select>
-              <span className="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
-            </div>
-          </div>
+          <ClientFilters consultants={consultantsList} />
         </div>
       </div>
 
@@ -151,7 +133,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
           {totalPages > 1 && (
             <div className="flex gap-1">
               {page > 1 ? (
-                <Link href={`/clients?page=${page - 1}`} className="px-3 py-1.5 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant font-body-sm text-body-sm flex items-center gap-1 transition-colors">
+                <Link href={`/clients?page=${page - 1}${searchParamString}`} className="px-3 py-1.5 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant font-body-sm text-body-sm flex items-center gap-1 transition-colors">
                   <span className="material-symbols-outlined text-[16px]">chevron_left</span>
                   Prev
                 </Link>
@@ -170,7 +152,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                     return (
                       <Link
                         key={p}
-                        href={`/clients?page=${p}`}
+                        href={`/clients?page=${p}${searchParamString}`}
                         className={`w-8 h-8 rounded-md flex items-center justify-center font-body-sm text-body-sm transition-colors ${p === page
                             ? 'border border-secondary bg-secondary text-on-secondary font-medium shadow-card'
                             : 'border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant'
@@ -189,7 +171,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
               </div>
 
               {page < totalPages ? (
-                <Link href={`/clients?page=${page + 1}`} className="px-3 py-1.5 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant font-body-sm text-body-sm flex items-center gap-1 transition-colors">
+                <Link href={`/clients?page=${page + 1}${searchParamString}`} className="px-3 py-1.5 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant font-body-sm text-body-sm flex items-center gap-1 transition-colors">
                   Next
                   <span className="material-symbols-outlined text-[16px]">chevron_right</span>
                 </Link>
