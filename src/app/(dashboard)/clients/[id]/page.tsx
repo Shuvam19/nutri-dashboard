@@ -22,7 +22,7 @@ export default async function ClientProfilePage({
     getClientDietPlans(id),
     getClientAppointments(id)
   ]);
-  
+
   if (!clientData) notFound();
 
   // BMI Calculation
@@ -74,11 +74,10 @@ export default async function ClientProfilePage({
                   className="w-16 h-16 rounded-xl object-cover shadow-sm border-2 border-surface-container-lowest"
                   src={`https://ui-avatars.com/api/?name=${encodeURIComponent(clientData.full_name)}&background=random`}
                 />
-                <span className={`absolute -bottom-1.5 -right-1.5 text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-widest border border-surface-container-lowest ${
-                  clientData.status === "active" ? "bg-primary text-on-primary" :
+                <span className={`absolute -bottom-1.5 -right-1.5 text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-widest border border-surface-container-lowest ${clientData.status === "active" ? "bg-primary text-on-primary" :
                   clientData.status === "inactive" ? "bg-outline text-surface" :
-                  "bg-secondary text-on-secondary"
-                }`}>
+                    "bg-secondary text-on-secondary"
+                  }`}>
                   {clientData.status}
                 </span>
               </div>
@@ -183,7 +182,7 @@ export default async function ClientProfilePage({
                   <p className="text-[9px] font-bold text-on-surface-variant tracking-wider mb-1.5">ACTIVE CONDITIONS</p>
                   {clientData.active_diseases && clientData.active_diseases.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
-                      {clientData.active_diseases.map((d, i) => (
+                      {clientData.active_diseases.map((d: any, i: number) => (
                         <span key={i} className="bg-secondary-container/30 text-on-secondary-container text-[10px] font-medium px-2 py-0.5 rounded-full">{d}</span>
                       ))}
                     </div>
@@ -195,7 +194,7 @@ export default async function ClientProfilePage({
                   <p className="text-[9px] font-bold text-on-surface-variant tracking-wider mb-1.5">PAST DISEASES</p>
                   {clientData.past_diseases && clientData.past_diseases.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
-                      {clientData.past_diseases.map((d, i) => (
+                      {clientData.past_diseases.map((d: any, i: number) => (
                         <span key={i} className="bg-surface-container text-on-surface-variant text-[10px] font-medium px-2 py-0.5 rounded-full">{d}</span>
                       ))}
                     </div>
