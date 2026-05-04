@@ -95,17 +95,18 @@ export default function TaxonomyManager({ initialData }: TaxonomyManagerProps) {
 
       {/* Tags Table */}
       <div className="border border-outline-variant rounded-xl overflow-hidden bg-surface">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-surface-container-low border-b border-outline-variant">
-              <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant">Machine Value</th>
-              <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant">Display Label</th>
-              <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant text-center">Sort Order</th>
-              <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant text-center">Status</th>
-              <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-outline-variant">
+        <form onSubmit={handleAddTag}>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-surface-container-low border-b border-outline-variant">
+                <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant">Machine Value</th>
+                <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant">Display Label</th>
+                <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant text-center">Sort Order</th>
+                <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant text-center">Status</th>
+                <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant">
             {currentCategory?.tags.map((tag) => (
               <tr key={tag.id} className="hover:bg-surface-container/30 transition-colors">
                 <td className="px-4 py-3 font-mono text-xs text-secondary">{tag.value}</td>
@@ -113,6 +114,7 @@ export default function TaxonomyManager({ initialData }: TaxonomyManagerProps) {
                 <td className="px-4 py-3 text-center font-data-tabular">{tag.sort_order}</td>
                 <td className="px-4 py-3 text-center">
                   <button
+                    type="button"
                     disabled={isPending}
                     onClick={() => handleToggleActive(tag.id, tag.is_active)}
                     className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
@@ -128,6 +130,7 @@ export default function TaxonomyManager({ initialData }: TaxonomyManagerProps) {
                 <td className="px-4 py-3 text-right">
                   <div className="flex justify-end gap-2">
                     <button 
+                      type="button"
                       disabled={isPending}
                       onClick={() => handleDelete(tag.id)}
                       className="p-1.5 rounded-lg text-outline hover:bg-error-container/20 hover:text-error transition-colors"
@@ -140,48 +143,47 @@ export default function TaxonomyManager({ initialData }: TaxonomyManagerProps) {
             ))}
             {/* Add New Row */}
             <tr className="bg-surface-container-lowest/50">
-              <form onSubmit={handleAddTag}>
-                <td className="px-4 py-3">
-                  <input
-                    name="value"
-                    required
-                    placeholder="machine_key"
-                    className="w-full bg-transparent border-b border-outline-variant focus:border-primary outline-none py-1 text-xs font-mono"
-                  />
-                </td>
-                <td className="px-4 py-3">
-                  <input
-                    name="label"
-                    required
-                    placeholder="Display Label"
-                    className="w-full bg-transparent border-b border-outline-variant focus:border-primary outline-none py-1 text-sm"
-                  />
-                </td>
-                <td className="px-4 py-3">
-                  <input
-                    name="sort_order"
-                    type="number"
-                    defaultValue="0"
-                    className="w-16 mx-auto bg-transparent border-b border-outline-variant focus:border-primary outline-none py-1 text-sm text-center"
-                  />
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <span className="text-[10px] font-bold text-outline uppercase">New</span>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button
-                    type="submit"
-                    disabled={isPending}
-                    className="bg-primary text-on-primary px-3 py-1 rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50"
-                  >
-                    Add
-                  </button>
-                </td>
-              </form>
+              <td className="px-4 py-3">
+                <input
+                  name="value"
+                  required
+                  placeholder="machine_key"
+                  className="w-full bg-transparent border-b border-outline-variant focus:border-primary outline-none py-1 text-xs font-mono"
+                />
+              </td>
+              <td className="px-4 py-3">
+                <input
+                  name="label"
+                  required
+                  placeholder="Display Label"
+                  className="w-full bg-transparent border-b border-outline-variant focus:border-primary outline-none py-1 text-sm"
+                />
+              </td>
+              <td className="px-4 py-3">
+                <input
+                  name="sort_order"
+                  type="number"
+                  defaultValue="0"
+                  className="w-16 mx-auto bg-transparent border-b border-outline-variant focus:border-primary outline-none py-1 text-sm text-center"
+                />
+              </td>
+              <td className="px-4 py-3 text-center">
+                <span className="text-[10px] font-bold text-outline uppercase">New</span>
+              </td>
+              <td className="px-4 py-3 text-right">
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="bg-primary text-on-primary px-3 py-1 rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50"
+                >
+                  Add
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
-      </div>
+      </form>
     </div>
-  );
+  </div>
+);
 }
