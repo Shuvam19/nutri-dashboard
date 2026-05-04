@@ -130,11 +130,11 @@ body {
 }
 
 /* Smooth transitions globally */
-*, *::before, *::after {
+/* *, *::before, *::after {
   transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
-}
+} */
 
 /* Focus ring */
 :focus-visible {
