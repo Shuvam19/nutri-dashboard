@@ -51,7 +51,7 @@ export default function UserManager({ users }: UserManagerProps) {
     setIsPending(true);
     const formData = new FormData(e.currentTarget);
     const result = await createUser(formData);
-    
+
     if (result.success) {
       setMessage({ type: "success", text: "Invite sent successfully." });
       setIsInviteModalOpen(false);
@@ -64,9 +64,8 @@ export default function UserManager({ users }: UserManagerProps) {
   return (
     <div className="space-y-6">
       {message && (
-        <div className={`p-4 rounded-lg flex items-center justify-between ${
-          message.type === "success" ? "bg-primary-container/20 text-primary border border-primary/20" : "bg-error-container/20 text-error border border-error/20"
-        }`}>
+        <div className={`p-4 rounded-lg flex items-center justify-between ${message.type === "success" ? "bg-primary-container/20 text-primary border border-primary/20" : "bg-error-container/20 text-error border border-error/20"
+          }`}>
           <span className="text-sm font-medium">{message.text}</span>
           <button onClick={() => setMessage(null)} className="material-symbols-outlined text-[18px]">close</button>
         </div>
@@ -130,11 +129,10 @@ export default function UserManager({ users }: UserManagerProps) {
                   <button
                     disabled={isPending}
                     onClick={() => handleToggleActive(user.id, user.is_active)}
-                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
-                      user.is_active 
-                        ? "bg-primary-container/10 border-primary/30 text-primary" 
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${user.is_active
+                        ? "bg-primary-container/10 border-primary/30 text-primary"
                         : "bg-error-container/10 border-error/30 text-error"
-                    }`}
+                      }`}
                   >
                     {user.is_active ? "Active" : "Disabled"}
                   </button>
@@ -153,7 +151,7 @@ export default function UserManager({ users }: UserManagerProps) {
       {/* Invite User Modal */}
       {isInviteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl border border-outline-variant overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-surface-container-lowest w-full rounded-2xl shadow-2xl border border-outline-variant overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface-container/30">
               <h3 className="font-h3 text-h3 text-on-surface">Invite Staff Member</h3>
               <button onClick={() => setIsInviteModalOpen(false)} className="material-symbols-outlined text-on-surface-variant">close</button>
