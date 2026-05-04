@@ -10,6 +10,11 @@ import {
   Cog6ToothIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
+import { FEATURE_NAV_MAP } from "@/lib/permissions";
+import { getMyPermissions } from "@/app/actions/permissions";
+import { RolePermission } from "@/lib/types/database";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect } from "react";
 
 type NavItem = {
   name: string;
@@ -61,6 +66,36 @@ const navigation: NavItem[] = [
 
 export function Sidebar() {
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [permissions, setPermissions] = useState<RolePermission[]>([]);
+  const [userProfile, setUserProfile] = useState<{ full_name: string; role: string } | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      const [perms, supabase] = await Promise.all([
+        getMyPermissions(),
+        createClient(),
+      ]);
+      setPermissions(perms);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name, role")
+          .eq("id", user.id)
+          .single();
+        if (profile) setUserProfile(profile);
+      }
+    }
+    load();
+  }, []);
+
+  const filteredNavigation = navigation.filter((item) => {
+    const featureKey = FEATURE_NAV_MAP[item.href];
+    if (!featureKey) return true; // Default to visible if not mapped
+    const perm = permissions.find((p) => p.feature === featureKey);
+    return perm ? perm.is_enabled : true; // Default to true if permission record missing (admin usually)
+  });
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-white border-r border-gray-100 shadow-sm transition-all duration-300 w-20 hover:w-64 group relative z-50">
@@ -74,7 +109,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-6 space-y-2">
-        {navigation.map((item) => {
+        {filteredNavigation.map((item) => {
           const isOpen = openSection === item.name;
           return (
             <div key={item.name} className="flex flex-col">
@@ -90,7 +125,7 @@ export function Sidebar() {
                 className="flex items-center w-full px-3 py-3 text-gray-600 rounded-xl hover:bg-primary-50 hover:text-primary-600 transition-colors group/item"
               >
                 <item.icon className="w-6 h-6 shrink-0" aria-hidden="true" />
-                <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden flex-1 text-left">
+                <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden flex-1 text-left text-sm">
                   {item.name}
                 </span>
                 {item.children && (
@@ -114,7 +149,7 @@ export function Sidebar() {
                       <Link
                         key={child.name}
                         href={child.href}
-                        className="pl-4 py-2 text-sm font-medium text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-r-lg transition-colors whitespace-nowrap"
+                        className="pl-4 py-2 text-xs font-medium text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-r-lg transition-colors whitespace-nowrap"
                       >
                         {child.name}
                       </Link>
@@ -129,10 +164,12 @@ export function Sidebar() {
 
       <div className="p-4 border-t border-gray-100">
         <div className="flex items-center">
-          <div className="w-10 h-10 bg-gray-200 rounded-full shrink-0"></div>
+          <div className="w-10 h-10 bg-primary-100 rounded-full shrink-0 flex items-center justify-center text-primary-700 font-bold">
+            {userProfile?.full_name.charAt(0) || "U"}
+          </div>
           <div className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden whitespace-nowrap">
-            <p className="text-sm font-medium text-gray-900">Dr. Consultant</p>
-            <p className="text-xs text-gray-500">Dietitian</p>
+            <p className="text-sm font-medium text-gray-900">{userProfile?.full_name || "Loading..."}</p>
+            <p className="text-xs text-gray-500 capitalize">{userProfile?.role || "User"}</p>
           </div>
         </div>
       </div>

@@ -70,4 +70,6 @@ export type {
   DietPlanWithMeals,
   DietPlanMealWithFood,
   ClientWithConsultant,
+  TaxonomyTagRow,
+  RolePermission,
 } from "./database";

@@ -127,6 +127,24 @@ export interface DietPlanMeal {
   created_at: string;
 }
 
+export interface TaxonomyTagRow {
+  id: string;
+  category: string;
+  value: string;
+  label: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface RolePermission {
+  id: string;
+  role: UserRole;
+  feature: string;
+  is_enabled: boolean;
+  updated_at: string;
+}
+
 export interface WhatsAppLog {
   id: string;
   client_id: string;
