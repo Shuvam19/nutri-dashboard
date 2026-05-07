@@ -3,7 +3,11 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import DietPlanActions from "@/components/diet-plans/DietPlanActions";
 
-export default async function DietPlansPage() {
+export default async function DietPlansPage({ searchParams }: { searchParams: Promise<{ type?: string, sort?: string }> }) {
+  const resolvedParams = await searchParams;
+  const filterType = resolvedParams.type || 'template';
+  const sortBy = resolvedParams.sort || 'recent';
+
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,7 +28,7 @@ export default async function DietPlansPage() {
     }
   );
 
-  const { data: dietPlans } = await supabase
+  let query = supabase
     .from("diet_plans")
     .select(`
       *,
@@ -37,8 +41,21 @@ export default async function DietPlansPage() {
           fat_g
         )
       )
-    `)
-    .order("created_at", { ascending: false });
+    `);
+
+  if (filterType === 'template') {
+    query = query.is("client_id", null);
+  } else if (filterType === 'client') {
+    query = query.not("client_id", "is", null);
+  }
+
+  if (sortBy === 'recent') {
+    query = query.order("created_at", { ascending: false });
+  } else if (sortBy === 'oldest') {
+    query = query.order("created_at", { ascending: true });
+  }
+
+  const { data: dietPlans } = await query;
 
   const dynamicPlans = dietPlans?.map(plan => {
     let totalCal = 0;
@@ -94,22 +111,26 @@ export default async function DietPlansPage() {
         {/* Filters & Sorting */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2 flex-1">
-            <button className="px-4 py-1.5 rounded-full bg-on-surface text-surface font-body-sm text-body-sm font-medium transition-colors">
-              All Templates
-            </button>
-            <button className="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-highest text-on-surface-variant font-body-sm text-body-sm font-medium transition-colors border border-outline-variant">
-              Weight Loss
-            </button>
-            <button className="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-highest text-on-surface-variant font-body-sm text-body-sm font-medium transition-colors border border-outline-variant">
-              Clinical
-            </button>
+            <Link href={`/diet-plans?type=all&sort=${sortBy}`} className={`px-4 py-1.5 rounded-full font-body-sm text-body-sm font-medium transition-colors border ${filterType === 'all' ? 'bg-on-surface text-surface border-transparent' : 'bg-surface-container hover:bg-surface-container-highest text-on-surface-variant border-outline-variant'}`}>
+              All Plans
+            </Link>
+            <Link href={`/diet-plans?type=template&sort=${sortBy}`} className={`px-4 py-1.5 rounded-full font-body-sm text-body-sm font-medium transition-colors border ${filterType === 'template' ? 'bg-on-surface text-surface border-transparent' : 'bg-surface-container hover:bg-surface-container-highest text-on-surface-variant border-outline-variant'}`}>
+              Templates
+            </Link>
+            <Link href={`/diet-plans?type=client&sort=${sortBy}`} className={`px-4 py-1.5 rounded-full font-body-sm text-body-sm font-medium transition-colors border ${filterType === 'client' ? 'bg-on-surface text-surface border-transparent' : 'bg-surface-container hover:bg-surface-container-highest text-on-surface-variant border-outline-variant'}`}>
+              Client Plans
+            </Link>
           </div>
           <div className="flex items-center gap-2 text-on-surface-variant">
             <span className="font-body-sm text-body-sm">Sort by:</span>
-            <select className="bg-surface-container-lowest border border-outline-variant rounded-md py-1.5 pl-3 pr-8 font-body-sm text-body-sm focus:ring-primary focus:border-primary text-on-surface cursor-pointer">
-              <option>Most Used</option>
-              <option>Recently Added</option>
-            </select>
+            <div className="flex bg-surface-container-lowest border border-outline-variant rounded-md overflow-hidden">
+              <Link href={`/diet-plans?type=${filterType}&sort=recent`} className={`px-3 py-1.5 font-body-sm text-body-sm transition-colors ${sortBy === 'recent' ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-surface-variant'}`}>
+                Recent
+              </Link>
+              <Link href={`/diet-plans?type=${filterType}&sort=oldest`} className={`px-3 py-1.5 font-body-sm text-body-sm transition-colors border-l border-outline-variant ${sortBy === 'oldest' ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-surface-variant'}`}>
+                Oldest
+              </Link>
+            </div>
           </div>
         </div>
 
