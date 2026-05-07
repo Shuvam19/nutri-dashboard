@@ -36,17 +36,18 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-base">
         <div>
           <h1 className="font-h1 text-h1 text-on-surface mb-1">Client Roster</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">
+          <p className="font-body-md text-body-md text-on-surface-variant hidden sm:block">
             Manage demographics, track active consultations, and access detailed health records.
           </p>
         </div>
-        <Link href="/clients/new" className="bg-primary text-on-primary font-body-md text-body-md px-md py-sm rounded-lg shadow-card flex items-center gap-xs hover:bg-surface-tint hover:-translate-y-px transition-all border border-transparent">
+        <Link href="/clients/new" className="bg-primary text-on-primary font-body-md text-body-md px-md py-sm rounded-lg shadow-card flex items-center gap-xs hover:bg-surface-tint hover:-translate-y-px transition-all border border-transparent shrink-0">
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>person_add</span>
-          Add New Client
+          <span className="hidden sm:inline">Add New Client</span>
+          <span className="sm:hidden">Add</span>
         </Link>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-dim p-md flex flex-col xl:flex-row gap-md items-end">
+      <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-dim p-3 md:p-md flex flex-col xl:flex-row gap-3 md:gap-md items-end">
         <div className="w-full xl:w-1/3 flex flex-col gap-xs">
           <label className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Search Roster</label>
           <div className="relative">
@@ -54,12 +55,52 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
             <ClientSearchInput />
           </div>
         </div>
-        <div className="w-full xl:flex-1 flex flex-wrap sm:flex-nowrap gap-md">
+        <div className="w-full xl:flex-1 flex flex-wrap sm:flex-nowrap gap-2 md:gap-md">
           <ClientFilters consultants={consultantsList} />
         </div>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-dim overflow-hidden flex-1 flex flex-col">
+      {/* ─── MOBILE CARD VIEW ──────────────────────────── */}
+      <div className="md:hidden space-y-3">
+        {clients.length === 0 ? (
+          <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-dim p-8 text-center text-on-surface-variant font-body-md">
+            No clients found. Add a new client to get started.
+          </div>
+        ) : (
+          clients.map((client) => (
+            <Link 
+              key={client.id} 
+              href={`/clients/${client.id}`}
+              className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-dim p-4 flex items-start gap-3 hover:bg-surface-container transition-colors active:scale-[0.99] block"
+            >
+              <div className="w-11 h-11 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center font-bold text-on-surface-variant shrink-0 text-sm">
+                {client.full_name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-data-tabular text-data-tabular text-on-surface font-semibold truncate">{client.full_name}</h3>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-caps text-[9px] gap-1 border border-primary-fixed-dim capitalize shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> {client.status}
+                  </span>
+                </div>
+                <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5 truncate">{client.email || 'No email provided'}</p>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-secondary-fixed text-on-secondary-fixed-variant font-label-caps text-[9px] border border-secondary-fixed-dim capitalize">
+                    {client.dietary_preference.replace('_', ' ')}
+                  </span>
+                  <span className="text-[11px] text-on-surface-variant">
+                    {client.profiles?.full_name || 'Unassigned'}
+                  </span>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-outline text-[20px] mt-1 shrink-0">chevron_right</span>
+            </Link>
+          ))
+        )}
+      </div>
+
+      {/* ─── DESKTOP TABLE VIEW ────────────────────────── */}
+      <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-dim overflow-hidden flex-1 flex-col hidden md:flex">
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
@@ -184,6 +225,36 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
             </div>
           )}
         </div>
+      </div>
+
+      {/* ─── MOBILE PAGINATION ────────────────────────── */}
+      <div className="md:hidden flex items-center justify-between px-1">
+        <span className="font-body-sm text-body-sm text-on-surface-variant">
+          {count > 0 ? startCount : 0}–{endCount} of {count}
+        </span>
+        {totalPages > 1 && (
+          <div className="flex gap-2">
+            {page > 1 ? (
+              <Link href={`/clients?page=${page - 1}${searchParamString}`} className="px-3 py-1.5 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest font-body-sm text-body-sm">
+                Prev
+              </Link>
+            ) : (
+              <button className="px-3 py-1.5 rounded-md border border-outline-variant text-outline font-body-sm text-body-sm opacity-50" disabled>
+                Prev
+              </button>
+            )}
+            <span className="px-2 py-1.5 font-body-sm text-body-sm text-on-surface font-semibold">{page}/{totalPages}</span>
+            {page < totalPages ? (
+              <Link href={`/clients?page=${page + 1}${searchParamString}`} className="px-3 py-1.5 rounded-md border border-outline-variant text-on-surface-variant bg-surface-container-lowest font-body-sm text-body-sm">
+                Next
+              </Link>
+            ) : (
+              <button className="px-3 py-1.5 rounded-md border border-outline-variant text-outline font-body-sm text-body-sm opacity-50" disabled>
+                Next
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </>
   );

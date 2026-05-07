@@ -8,7 +8,10 @@ type ViewMode = "month" | "week" | "day";
 
 export function AppointmentCalendar({ appointments }: { appointments: any[] }) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>("month");
+  // Default to 'day' view on mobile for usability
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    typeof window !== "undefined" && window.innerWidth < 768 ? "day" : "month"
+  );
 
   // --- Date Calculations ---
   const daysInGrid = useMemo(() => {
@@ -131,59 +134,59 @@ export function AppointmentCalendar({ appointments }: { appointments: any[] }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-surface -m-6 md:-m-8">
+    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-surface -m-4 md:-m-8">
       {/* Page Header */}
-      <header className="px-6 py-4 flex items-center justify-between border-b border-surface-variant bg-surface-container-lowest z-10 shadow-sm shrink-0">
-        <div className="flex items-center gap-6">
-          <h1 className="font-h2 text-h2 text-on-surface">Appointments</h1>
-          <div className="hidden md:flex items-center gap-2 bg-surface-container p-1 rounded-lg">
+      <header className="px-3 md:px-6 py-3 md:py-4 flex flex-wrap items-center justify-between gap-3 border-b border-surface-variant bg-surface-container-lowest z-10 shadow-sm shrink-0">
+        <div className="flex items-center gap-3 md:gap-6">
+          <h1 className="font-h3 md:font-h2 text-h3 md:text-h2 text-on-surface">Appointments</h1>
+          <div className="flex items-center gap-1 md:gap-2 bg-surface-container p-1 rounded-lg">
             <button 
               onClick={() => setViewMode("month")} 
-              className={`px-3 py-1.5 text-body-sm font-body-sm font-medium rounded-md transition-colors ${viewMode === 'month' ? 'bg-surface-container-lowest text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+              className={`px-2 md:px-3 py-1 md:py-1.5 text-[11px] md:text-body-sm font-body-sm font-medium rounded-md transition-colors ${viewMode === 'month' ? 'bg-surface-container-lowest text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
             >
               Month
             </button>
             <button 
               onClick={() => setViewMode("week")} 
-              className={`px-3 py-1.5 text-body-sm font-body-sm font-medium rounded-md transition-colors ${viewMode === 'week' ? 'bg-surface-container-lowest text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+              className={`px-2 md:px-3 py-1 md:py-1.5 text-[11px] md:text-body-sm font-body-sm font-medium rounded-md transition-colors ${viewMode === 'week' ? 'bg-surface-container-lowest text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'} hidden md:block`}
             >
               Week
             </button>
             <button 
               onClick={() => setViewMode("day")} 
-              className={`px-3 py-1.5 text-body-sm font-body-sm font-medium rounded-md transition-colors ${viewMode === 'day' ? 'bg-surface-container-lowest text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+              className={`px-2 md:px-3 py-1 md:py-1.5 text-[11px] md:text-body-sm font-body-sm font-medium rounded-md transition-colors ${viewMode === 'day' ? 'bg-surface-container-lowest text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
             >
               Day
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-1 md:gap-2">
             <button 
               onClick={goToday}
-              className="px-4 py-2 border border-outline-variant rounded-md text-body-sm font-body-sm font-medium hover:bg-surface-container-low transition-colors text-on-surface"
+              className="px-2 md:px-4 py-1.5 md:py-2 border border-outline-variant rounded-md text-[11px] md:text-body-sm font-body-sm font-medium hover:bg-surface-container-low transition-colors text-on-surface"
             >
               Today
             </button>
-            <div className="flex items-center gap-1 border-l border-surface-variant pl-2 ml-2">
-              <button onClick={prevDate} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant">
-                <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+            <div className="flex items-center gap-0.5 md:gap-1 border-l border-surface-variant pl-1 md:pl-2 ml-1 md:ml-2">
+              <button onClick={prevDate} className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant">
+                <span className="material-symbols-outlined text-[18px] md:text-[20px]">chevron_left</span>
               </button>
-              <span className="font-h3 text-h3 text-on-surface w-40 text-center">{headerDateStr}</span>
-              <button onClick={nextDate} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant">
-                <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+              <span className="font-h3 text-[13px] md:text-h3 text-on-surface w-28 md:w-40 text-center truncate">{headerDateStr}</span>
+              <button onClick={nextDate} className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant">
+                <span className="material-symbols-outlined text-[18px] md:text-[20px]">chevron_right</span>
               </button>
             </div>
           </div>
-          <Link href="/appointments/new" className="bg-primary text-on-primary hover:opacity-90 font-body-sm text-body-sm font-semibold py-2 px-4 rounded-lg flex items-center gap-2 transition-all shadow-sm">
-            <span className="material-symbols-outlined text-[18px]">add</span>
+          <Link href="/appointments/new" className="bg-primary text-on-primary hover:opacity-90 font-body-sm text-[11px] md:text-body-sm font-semibold py-1.5 md:py-2 px-2 md:px-4 rounded-lg flex items-center gap-1.5 transition-all shadow-sm">
+            <span className="material-symbols-outlined text-[16px] md:text-[18px]">add</span>
             <span className="hidden sm:inline">Schedule Client</span>
           </Link>
         </div>
       </header>
 
       {/* Content Grid Area */}
-      <div className="flex-1 flex overflow-hidden p-6 gap-6 bg-surface">
+      <div className="flex-1 flex overflow-hidden p-3 md:p-6 gap-3 md:gap-6 bg-surface">
         
         {/* Main View Area */}
         <div className="flex-1 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex flex-col overflow-hidden">
@@ -199,7 +202,7 @@ export function AppointmentCalendar({ appointments }: { appointments: any[] }) {
               </div>
 
               {/* Calendar Grid */}
-              <div className="flex-1 grid grid-cols-7 overflow-y-auto bg-outline-variant gap-px" style={{ gridTemplateRows: `repeat(${daysInGrid.length / 7}, minmax(120px, 1fr))` }}>
+              <div className="flex-1 grid grid-cols-7 overflow-y-auto bg-outline-variant gap-px" style={{ gridTemplateRows: `repeat(${daysInGrid.length / 7}, minmax(80px, 1fr))` }}>
                 {daysInGrid.map((dayObj, i) => {
                   const dayApts = getAppointmentsForDay(dayObj.date);
                   const isTodayDate = isToday(dayObj.date);

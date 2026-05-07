@@ -72,7 +72,7 @@ export default async function DietPlansPage() {
   });
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-background min-h-[calc(100vh-4rem)]">
+    <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-background min-h-[calc(100vh-4rem)]">
       <div className="max-w-container-max mx-auto space-y-6">
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-surface-variant pb-6">
@@ -84,7 +84,7 @@ export default async function DietPlansPage() {
           </div>
           <Link
             href="/diet-plans/new"
-            className="bg-primary hover:bg-surface-tint text-on-primary px-6 py-3 rounded-lg font-body-md text-body-md font-semibold flex items-center justify-center gap-2 transition-all shadow-sm active:scale-[0.98]"
+            className="bg-primary hover:bg-surface-tint text-on-primary px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-body-md text-body-md font-semibold flex items-center justify-center gap-2 transition-all shadow-sm active:scale-[0.98] shrink-0"
           >
             <span className="material-symbols-outlined">add_circle</span>
             Create New Template
@@ -92,8 +92,8 @@ export default async function DietPlansPage() {
         </div>
 
         {/* Filters & Sorting */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2 flex-1">
             <button className="px-4 py-1.5 rounded-full bg-on-surface text-surface font-body-sm text-body-sm font-medium transition-colors">
               All Templates
             </button>
@@ -114,7 +114,7 @@ export default async function DietPlansPage() {
         </div>
 
         {/* Template Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 pt-3">
           {dynamicPlans && dynamicPlans.length > 0 ? (
             dynamicPlans.map((plan) => (
               <div key={plan.id} className="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant overflow-hidden flex flex-col transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] group relative">
@@ -165,7 +165,7 @@ export default async function DietPlansPage() {
               </div>
             ))
           ) : (
-            <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12 text-on-surface-variant">
+            <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-12 text-on-surface-variant">
               No diet plans found.
             </div>
           )}

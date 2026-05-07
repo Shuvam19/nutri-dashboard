@@ -39,10 +39,10 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="p-gutter lg:p-margin max-w-container-max mx-auto space-y-md">
+    <div className="p-4 md:p-gutter lg:p-margin max-w-container-max mx-auto space-y-4 md:space-y-md">
       {/* Quick Stats Cards (Bento Style) */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-md">
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex justify-between items-center group hover:border-primary-container transition-colors">
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-md">
+        <div className="bg-white p-4 md:p-6 rounded-xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex justify-between items-center group hover:border-primary-container transition-colors">
           <div>
             <p className="font-label-caps text-slate-500 mb-1">Active Clients</p>
             <h2 className="font-h1 text-on-surface">{clients?.length || 128}</h2>
@@ -56,7 +56,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex justify-between items-center group hover:border-tertiary-container transition-colors">
+        <div className="bg-white p-4 md:p-6 rounded-xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex justify-between items-center group hover:border-tertiary-container transition-colors">
           <div>
             <p className="font-label-caps text-slate-500 mb-1">Pending Plans</p>
             <h2 className="font-h1 text-on-surface">{plans?.filter((p) => p.status === "draft")?.length || 14}</h2>
@@ -71,9 +71,9 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-md">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-md">
         {/* Today's Appointments */}
-        <section className="lg:col-span-3 space-y-sm">
+        <section className="lg:col-span-3 space-y-3 md:space-y-sm">
           <div className="flex justify-between items-center">
             <h3 className="font-h3 text-on-surface">Today's Appointments</h3>
             <button className="text-primary text-sm font-bold hover:underline">View All</button>
@@ -129,7 +129,7 @@ export default async function DashboardPage() {
         </section>
 
         {/* Recent Clients */}
-        <section className="lg:col-span-2 space-y-sm">
+        <section className="lg:col-span-2 space-y-3 md:space-y-sm">
           <h3 className="font-h3 text-on-surface">Recent Clients</h3>
           <div className="bg-white rounded-xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden">
             <table className="w-full text-left">

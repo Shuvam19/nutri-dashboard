@@ -38,7 +38,7 @@ export default async function FoodBucketPage({ searchParams }: { searchParams: P
       />
 
       {/* Main Grid Area */}
-      <div className="flex-1 p-6 md:p-8 bg-background overflow-y-auto">
+      <div className="flex-1 p-4 md:p-8 bg-background overflow-y-auto">
         <div className="max-w-container-max mx-auto">
           {/* Header Actions */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
@@ -68,7 +68,7 @@ export default async function FoodBucketPage({ searchParams }: { searchParams: P
           </div>
 
           {/* Bento Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
             {foodItems && foodItems.length > 0 ? (
               foodItems.map((food) => (
                 <div key={food.id} className="bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden hover:shadow-md transition-shadow group flex flex-col h-full">

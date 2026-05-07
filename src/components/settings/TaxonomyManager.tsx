@@ -96,7 +96,8 @@ export default function TaxonomyManager({ initialData }: TaxonomyManagerProps) {
       {/* Tags Table */}
       <div className="border border-outline-variant rounded-xl overflow-hidden bg-surface">
         <form onSubmit={handleAddTag}>
-          <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr className="bg-surface-container-low border-b border-outline-variant">
                 <th className="px-4 py-3 font-label-caps text-label-caps text-on-surface-variant">Machine Value</th>
@@ -181,9 +182,10 @@ export default function TaxonomyManager({ initialData }: TaxonomyManagerProps) {
               </td>
             </tr>
           </tbody>
-        </table>
-      </form>
-    </div>
+         </table>
+       </div>
+       </form>
+     </div>
   </div>
 );
 }

@@ -225,7 +225,7 @@ export function MealBuilder({ initialClientId }: { initialClientId?: string }) {
       )}
 
       {/* Builder Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="flex flex-col gap-4 md:gap-6">
         <div className="flex-1 space-y-4">
           <div>
             <p className="font-label-caps text-label-caps text-primary mb-1 uppercase">
@@ -236,13 +236,13 @@ export function MealBuilder({ initialClientId }: { initialClientId?: string }) {
               name="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="font-h2 text-h2 text-on-surface bg-transparent border-b-2 border-outline-variant/50 hover:border-outline-variant focus:border-primary focus:outline-none transition-colors w-full py-1 px-1"
+              className="font-h3 md:font-h2 text-h3 md:text-h2 text-on-surface bg-transparent border-b-2 border-outline-variant/50 hover:border-outline-variant focus:border-primary focus:outline-none transition-colors w-full py-1 px-1"
               placeholder="Template Title"
               required
             />
           </div>
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className={`flex items-center gap-2 bg-surface-container-lowest border rounded-lg p-2 min-w-[200px] ${initialClientId ? 'border-primary/30 bg-primary/5' : 'border-outline-variant'}`}>
+          <div className="flex flex-wrap gap-2 md:gap-4 items-center">
+            <div className={`flex items-center gap-2 bg-surface-container-lowest border rounded-lg p-2 flex-1 min-w-[160px] md:min-w-[200px] ${initialClientId ? 'border-primary/30 bg-primary/5' : 'border-outline-variant'}`}>
               <span className={`material-symbols-outlined ${initialClientId ? 'text-primary' : 'text-outline'}`}>person</span>
               <select 
                 name="client_id"
@@ -277,17 +277,17 @@ export function MealBuilder({ initialClientId }: { initialClientId?: string }) {
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-3">
           <Link
             href="/diet-plans"
-            className="px-4 py-2 rounded-lg font-label-caps text-label-caps text-secondary border border-secondary hover:bg-secondary-fixed transition-colors flex items-center gap-2"
+            className="px-3 md:px-4 py-2 rounded-lg font-label-caps text-label-caps text-secondary border border-secondary hover:bg-secondary-fixed transition-colors flex items-center gap-2 text-xs"
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={isPending || mealPayload.length === 0}
-            className="px-4 py-2 rounded-lg font-label-caps text-label-caps text-on-primary bg-primary hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
+            className="px-3 md:px-4 py-2 rounded-lg font-label-caps text-label-caps text-on-primary bg-primary hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 text-xs"
           >
             <span className="material-symbols-outlined text-[18px]">save</span>
             {isPending ? "Saving..." : "Save Plan"}
@@ -309,13 +309,13 @@ export function MealBuilder({ initialClientId }: { initialClientId?: string }) {
                 onClick={() => setActiveSlotId(slot.id)}
                 className={`bg-surface-container-lowest rounded-xl shadow-card border overflow-hidden transition-all ${isActive ? 'border-primary ring-1 ring-primary/20' : 'border-outline-variant hover:border-primary/50 cursor-pointer'}`}
               >
-                <div className={`border-b p-4 flex items-center justify-between ${isActive ? 'bg-primary-container/10 border-primary/20' : 'bg-surface border-surface-variant'}`}>
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-tertiary-container">{labelInfo.icon}</span>
+                <div className={`border-b p-3 md:p-4 flex items-center justify-between ${isActive ? 'bg-primary-container/10 border-primary/20' : 'bg-surface border-surface-variant'}`}>
+                  <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                    <span className="material-symbols-outlined text-tertiary-container text-[20px] md:text-[24px]">{labelInfo.icon}</span>
                     <select 
                       value={slot.meal_type} 
                       onChange={(e) => changeSlotType(slot.id, e.target.value as MealSlot)}
-                      className="font-h3 text-h3 text-on-surface bg-transparent border-none p-0 focus:ring-0 cursor-pointer outline-none"
+                      className="font-h3 text-h3 text-on-surface bg-transparent border-none p-0 focus:ring-0 cursor-pointer outline-none text-sm md:text-base"
                     >
                       {Object.entries(MEAL_SLOT_LABELS).map(([val, info]) => (
                         <option key={val} value={val}>{info.label}</option>
@@ -327,8 +327,8 @@ export function MealBuilder({ initialClientId }: { initialClientId?: string }) {
                   </div>
                   <div className="flex items-center gap-2">
                     {isActive && (
-                      <span className="text-primary font-label-caps text-label-caps text-xs flex items-center gap-1 uppercase tracking-wider bg-primary-container/30 px-2 py-1 rounded">
-                        <span className="material-symbols-outlined text-[14px]">edit</span> Active Slot
+                      <span className="text-primary font-label-caps text-label-caps text-[10px] md:text-xs flex items-center gap-1 uppercase tracking-wider bg-primary-container/30 px-2 py-1 rounded hidden sm:flex">
+                        <span className="material-symbols-outlined text-[14px]">edit</span> Active
                       </span>
                     )}
                     <button type="button" onClick={(e) => { e.stopPropagation(); removeSlot(slot.id); }} className="text-outline hover:text-error p-1">
@@ -346,34 +346,34 @@ export function MealBuilder({ initialClientId }: { initialClientId?: string }) {
                     </div>
                   ) : (
                     slot.items.map((item, index) => (
-                      <div key={item.id} className={`flex items-center gap-4 p-2 hover:bg-surface-container-low rounded-lg group transition-colors ${index > 0 ? 'border-t border-surface-variant border-dashed' : ''}`}>
-                        <div className="w-10 h-10 rounded bg-secondary-container/20 flex items-center justify-center text-secondary flex-shrink-0">
-                          <span className="material-symbols-outlined">
+                      <div key={item.id} className={`flex flex-wrap sm:flex-nowrap items-center gap-2 md:gap-4 p-2 hover:bg-surface-container-low rounded-lg group transition-colors ${index > 0 ? 'border-t border-surface-variant border-dashed' : ''}`}>
+                        <div className="w-9 h-9 md:w-10 md:h-10 rounded bg-secondary-container/20 flex items-center justify-center text-secondary flex-shrink-0">
+                          <span className="material-symbols-outlined text-[20px] md:text-[24px]">
                             {item.food.category === 'beverage' ? 'water_drop' : 'eco'}
                           </span>
                         </div>
-                        <div className="flex-1">
-                          <p className="font-body-md text-body-md text-on-surface font-medium">{item.food.name}</p>
-                          <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-1">{item.food.description || "No notes"}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-body-md text-body-md text-on-surface font-medium truncate">{item.food.name}</p>
+                          <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-1 hidden sm:block">{item.food.description || "No notes"}</p>
                         </div>
-                        <div className="flex items-center gap-2 w-32">
+                        <div className="flex items-center gap-2 shrink-0">
                           <input
-                            className="w-16 p-1 border border-outline-variant rounded text-center font-data-tabular text-data-tabular focus:ring-2 focus:ring-secondary focus:border-secondary outline-none"
+                            className="w-14 md:w-16 p-1 border border-outline-variant rounded text-center font-data-tabular text-data-tabular focus:ring-2 focus:ring-secondary focus:border-secondary outline-none text-sm"
                             type="number"
                             step="0.1"
                             min="0.1"
                             value={item.quantity}
                             onChange={(e) => updateItemQuantity(slot.id, item.id, parseFloat(e.target.value))}
                           />
-                          <span className="font-body-sm text-body-sm text-on-surface-variant">{item.food.serving_size}</span>
+                          <span className="font-body-sm text-body-sm text-on-surface-variant hidden sm:inline">{item.food.serving_size}</span>
                         </div>
-                        <div className="w-24 text-right">
-                          <p className="font-data-tabular text-data-tabular text-on-surface">
+                        <div className="w-auto md:w-24 text-right shrink-0">
+                          <p className="font-data-tabular text-data-tabular text-on-surface text-sm">
                             {Math.round(item.food.calories_per_serving * item.quantity)} kcal
                           </p>
                         </div>
-                        <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(slot.id, item.id); }} className="p-1 text-outline hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="material-symbols-outlined">delete</span>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(slot.id, item.id); }} className="p-1 text-outline hover:text-error sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0">
+                          <span className="material-symbols-outlined text-[20px]">delete</span>
                         </button>
                       </div>
                     ))
@@ -391,9 +391,9 @@ export function MealBuilder({ initialClientId }: { initialClientId?: string }) {
         </div>
 
         {/* Right Column: Sidebar (Sticky) */}
-        <div className="lg:col-span-4 space-y-6 sticky top-24">
+        <div className="lg:col-span-4 space-y-4 md:space-y-6 lg:sticky lg:top-24">
           {/* Daily Summary Card */}
-          <div className="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant p-6">
+          <div className="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant p-4 md:p-6">
             <h3 className="font-h3 text-h3 text-on-surface mb-4 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">monitoring</span>
               Daily Targets

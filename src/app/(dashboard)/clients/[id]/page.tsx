@@ -57,12 +57,12 @@ export default async function ClientProfilePage({
     .replace(/\b\w/g, (c: string) => c.toUpperCase());
 
   return (
-    <div className="max-w-container-max mx-auto px-4 py-6 md:px-margin w-full">
+    <div className="max-w-container-max mx-auto px-3 py-4 md:px-margin md:py-6 w-full">
       {/* Two-column layout: 40% left info panel | 60% right tabs */}
-      <div className="flex flex-col lg:flex-row gap-gutter items-start">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-gutter items-start">
 
         {/* ── LEFT COLUMN (40%) ─────────────────────────────────── */}
-        <div className="w-full lg:w-[40%] shrink-0 space-y-gutter lg:sticky lg:top-20">
+        <div className="w-full lg:w-[40%] shrink-0 space-y-3 md:space-y-gutter lg:sticky lg:top-20">
 
           {/* Profile Card */}
           <div className="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
@@ -119,7 +119,7 @@ export default async function ClientProfilePage({
                 <span className="material-symbols-outlined text-[16px] text-primary">analytics</span>
                 QUICK STATS
               </p>
-              <div className="grid grid-cols-4 gap-2 mb-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
                 {[
                   { label: "AGE", value: clientData.age, unit: "yrs" },
                   { label: "SEX", value: clientData.gender === "male" ? "M" : clientData.gender === "female" ? "F" : "O", unit: "" },
@@ -177,7 +177,7 @@ export default async function ClientProfilePage({
               </div>
 
               {/* Diseases row */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <p className="text-[9px] font-bold text-on-surface-variant tracking-wider mb-1.5">ACTIVE CONDITIONS</p>
                   {clientData.active_diseases && clientData.active_diseases.length > 0 ? (
