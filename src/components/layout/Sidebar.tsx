@@ -9,6 +9,8 @@ import {
   CalendarIcon,
   Cog6ToothIcon,
   ChevronDownIcon,
+  Bars3Icon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { FEATURE_NAV_MAP } from "@/lib/permissions";
 import { getMyPermissions } from "@/app/actions/permissions";
@@ -102,12 +104,13 @@ export function Sidebar() {
     <>
       <div className={`flex h-full min-h-screen flex-col bg-white border-r 
                      border-gray-100 shadow-sm transition-all duration-300 
-                     w-20 lg:hover:w-64 group relative z-50`}>
+                     ${sidebarOpen ? "w-64" : "w-20 lg:hover:w-64"} group relative z-50`}>
         <div className="flex items-center h-16 px-4 shrink-0 border-b border-gray-100">
           <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center shrink-0">
             <span className="text-white font-bold text-lg">N</span>
           </div>
-          <span className="ml-4 font-bold text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden">
+          <span className={`ml-4 font-bold text-gray-800 transition-opacity duration-300 whitespace-nowrap overflow-hidden
+            ${sidebarOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
             NutriCRM
           </span>
         </div>
@@ -129,13 +132,15 @@ export function Sidebar() {
                   className="flex items-center w-full px-3 py-3 text-gray-600 rounded-xl hover:bg-primary-50 hover:text-primary-600 transition-colors group/item"
                 >
                   <item.icon className="w-6 h-6 shrink-0" aria-hidden="true" />
-                  <span className="ml-4 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden flex-1 text-left text-sm">
+                  <span className={`ml-4 font-medium transition-opacity duration-300 whitespace-nowrap overflow-hidden flex-1 text-left text-sm
+                    ${sidebarOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
                     {item.name}
                   </span>
                   {item.children && (
                     <ChevronDownIcon
-                      className={`w-4 h-4 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
-                        }`}
+                      className={`w-4 h-4 ml-auto shrink-0 transition-transform duration-200 
+                        ${sidebarOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}
+                        ${isOpen ? "rotate-180" : ""}`}
                     />
                   )}
                 </button>
@@ -146,7 +151,8 @@ export function Sidebar() {
                     className={`overflow-hidden transition-all duration-300 ease-in-out pl-12 pr-4 ${isOpen && "group-hover:block"
                       } ${isOpen ? "max-h-40 opacity-100 mt-1" : "max-h-0 opacity-0"}`}
                   >
-                    <div className="flex flex-col space-y-1 py-1 hidden group-hover:flex border-l-2 border-primary-100">
+                    <div className={`flex flex-col space-y-1 py-1 border-l-2 border-primary-100
+                      ${sidebarOpen ? "flex" : "hidden group-hover:flex"}`}>
                       {item.children.map((child) => (
                         <Link
                           key={child.name}
@@ -165,9 +171,20 @@ export function Sidebar() {
         </nav>
 
         <div className="p-4 border-t border-gray-100">
-          <div className="flex items-center">
-
-          </div>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="flex items-center w-full px-3 py-3 text-gray-600 rounded-xl hover:bg-primary-50 hover:text-primary-600 transition-colors"
+          >
+            {sidebarOpen ? (
+              <XMarkIcon className="w-6 h-6 shrink-0" />
+            ) : (
+              <Bars3Icon className="w-6 h-6 shrink-0" />
+            )}
+            <span className={`ml-4 font-medium transition-opacity duration-300 whitespace-nowrap overflow-hidden
+              ${sidebarOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+              {sidebarOpen ? "Collapse" : "Expand"}
+            </span>
+          </button>
         </div>
       </div>
 
