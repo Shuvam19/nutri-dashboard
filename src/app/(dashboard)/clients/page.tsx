@@ -115,9 +115,9 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                         <Link href={`/clients/${client.id}`} className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="View Patient File">
                           <span className="material-symbols-outlined text-[20px]">visibility</span>
                         </Link>
-                        <button className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="Edit Demographics">
+                        <Link href={`/clients/${client.id}/edit`} className="p-1.5 rounded-lg text-outline hover:bg-surface-variant hover:text-secondary transition-colors" title="Edit Demographics">
                           <span className="material-symbols-outlined text-[20px]">edit</span>
-                        </button>
+                        </Link>
                       </div>
                     </td>
                   </tr>

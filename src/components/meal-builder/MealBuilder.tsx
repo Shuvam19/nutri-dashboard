@@ -4,6 +4,7 @@ import React, { useState, useEffect, useActionState } from "react";
 import Link from "next/link";
 import { saveDietPlan, searchFoodItemsFiltered, getClientsList } from "@/app/actions/dietPlan";
 import { getTaxonomyTagsBatch, TaxonomyTag } from "@/app/actions/taxonomy";
+import { getClientById } from "@/app/actions/client";
 import { FoodItem, MealSlot, MealCategory } from "@/lib/types/database";
 import { MEAL_CATEGORIES } from "@/lib/constants";
 
@@ -29,12 +30,12 @@ const MEAL_SLOT_LABELS: Record<MealSlot, { label: string; icon: string; time: st
   bedtime: { label: "Bedtime", icon: "bedtime", time: "10:30 PM" }
 };
 
-export function MealBuilder() {
+export function MealBuilder({ initialClientId }: { initialClientId?: string }) {
   const [state, formAction, isPending] = useActionState(saveDietPlan, null);
   
   // Basic Info State
   const [title, setTitle] = useState("New Template");
-  const [clientId, setClientId] = useState("");
+  const [clientId, setClientId] = useState(initialClientId || "");
   const [totalDays, setTotalDays] = useState(7);
   
   // Data State
@@ -70,7 +71,26 @@ export function MealBuilder() {
       setDiseaseTags(tags["disease_tag"] || []);
       setRegionTags(tags["region_tag"] || []);
     });
-  }, []);
+
+    if (initialClientId) {
+      getClientById(initialClientId).then(client => {
+        if (client) {
+          setTitle(`Diet Plan for ${client.full_name}`);
+          // Pre-apply filters
+          if (client.dietary_preference) {
+            setFilterDietary([client.dietary_preference]);
+          }
+          if (client.active_diseases && client.active_diseases.length > 0) {
+            setFilterDisease(client.active_diseases);
+          }
+          if (client.region) {
+            // Take the first region if comma separated
+            setFilterRegion(client.region.split(',')[0].trim());
+          }
+        }
+      });
+    }
+  }, [initialClientId]);
 
   // Search Foods Effect with debounce + filters
   useEffect(() => {
@@ -222,20 +242,25 @@ export function MealBuilder() {
             />
           </div>
           <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant rounded-lg p-2 min-w-[200px]">
-              <span className="material-symbols-outlined text-outline">person</span>
+            <div className={`flex items-center gap-2 bg-surface-container-lowest border rounded-lg p-2 min-w-[200px] ${initialClientId ? 'border-primary/30 bg-primary/5' : 'border-outline-variant'}`}>
+              <span className={`material-symbols-outlined ${initialClientId ? 'text-primary' : 'text-outline'}`}>person</span>
               <select 
                 name="client_id"
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
-                className="w-full bg-transparent border-none p-0 text-body-sm font-body-sm focus:ring-0 text-on-surface cursor-pointer outline-none"
+                disabled={!!initialClientId}
+                className={`w-full bg-transparent border-none p-0 text-body-sm font-body-sm focus:ring-0 text-on-surface outline-none ${initialClientId ? 'cursor-default opacity-80' : 'cursor-pointer'}`}
               >
                 <option value="">Template (No Client)</option>
                 {clients.map(c => (
                   <option key={c.id} value={c.id}>{c.full_name}</option>
                 ))}
               </select>
+              {initialClientId && (
+                <input type="hidden" name="client_id" value={initialClientId} />
+              )}
             </div>
+
             <div className="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant rounded-lg p-2">
               <span className="material-symbols-outlined text-outline">calendar_month</span>
               <input
