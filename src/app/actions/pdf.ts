@@ -60,14 +60,19 @@ export async function generateAndUploadPdf(dietPlanId: string): Promise<{
     return { success: false, message: `Upload failed: ${uploadError.message}` };
   }
 
-  // 6. Get the public URL
-  const { data: urlData } = supabase.storage
+  // 4. Get a signed URL (works regardless of bucket visibility, 7-day expiry)
+  const { data: signedUrlData, error: signedUrlError } = await supabase.storage
     .from(BUCKET_NAME)
-    .getPublicUrl(storagePath);
+    .createSignedUrl(storagePath, 60 * 60 * 24 * 7); // 7 days in seconds
+
+  if (signedUrlError || !signedUrlData?.signedUrl) {
+    console.error("Error creating signed URL:", signedUrlError);
+    return { success: false, message: "PDF uploaded but could not generate download link" };
+  }
 
   return {
     success: true,
-    url: urlData.publicUrl,
+    url: signedUrlData.signedUrl,
   };
 }
 
