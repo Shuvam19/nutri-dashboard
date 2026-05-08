@@ -1,6 +1,6 @@
 import { getDietPlanById } from "@/app/actions/dietPlan";
 import { notFound } from "next/navigation";
-import WhatsAppShareButton from "@/components/pdf/WhatsAppShareButton";
+import DietPlanActionBar from "@/components/pdf/DietPlanActionBar";
 import Link from "next/link";
 import { DietPlanMealWithFood } from "@/lib/types/database";
 
@@ -46,13 +46,12 @@ export default async function DietPlanPreviewPage({ params }: { params: Promise<
           </p>
         </div>
 
-        <div className="flex gap-3">
-          {/* Action Buttons */}
-          <button className="bg-[var(--color-surface-container)] hover:bg-[var(--color-surface-variant)] text-[var(--color-on-surface)] font-medium py-2 px-4 rounded-xl transition-colors shadow-sm">
-            Download PDF
-          </button>
-          <WhatsAppShareButton plan={plan} />
-        </div>
+        <DietPlanActionBar
+          planId={plan.id}
+          clientPhone={plan.client?.phone}
+          clientName={plan.client?.full_name}
+          planTitle={plan.title}
+        />
       </div>
 
       {/* Plan Details grid */}
