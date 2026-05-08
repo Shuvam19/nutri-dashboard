@@ -192,7 +192,6 @@ export function Topbar() {
                   <button
                     type="submit"
                     className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
-                    onClick={() => setDropdownOpen(false)}
                   >
                     <span className="material-symbols-outlined text-[20px]">
                       logout
