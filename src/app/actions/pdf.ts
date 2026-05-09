@@ -212,7 +212,7 @@ async function buildPdf(plan: any): Promise<Buffer> {
 
     // Sort slots by defined order
     const orderedSlots = Object.keys(mealsBySlot).sort(
-      (a, b) => slotOrder.indexOf(a) - slotOrder.indexOf(b)
+      (a, b) => (slotOrder as string[]).indexOf(a) - (slotOrder as string[]).indexOf(b)
     );
 
     // Day header
