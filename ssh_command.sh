@@ -1,0 +1,1 @@
+GIT_SSH_COMMAND="ssh -i ~/.ssh/shuvam_github -o IdentitiesOnly=yes" git push
